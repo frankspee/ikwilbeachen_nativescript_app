@@ -1,41 +1,57 @@
 <template>
-    <Page>
-        <ActionBar>
-            <Label text="Home"/>
-        </ActionBar>
+  <Page>
+    <ActionBar>
+      <Label text="ikwilbeachen" />
+    </ActionBar>
 
-        <GridLayout>
-            <Label class="info">
-                <FormattedString>
-                    <Span class="fas" text.decode="&#xf135; "/>
-                    <Span :text="message"/>
-                </FormattedString>
-            </Label>
-        </GridLayout>
-    </Page>
+    <GridLayout rows="*, auto">
+      <Label row="0" class="info">
+        <FormattedString>
+          <Span class="fas" text.decode="&#xf45f; " />
+          <Span :text="message" />
+        </FormattedString>
+      </Label>
+      <Button row="1" class="-primary2" v-on:tap="onTap()">
+        <FormattedString>
+          <Span class="fas" text="&#xf45f;"></Span>
+          <Span text=" Nieuw"></Span>
+        </FormattedString>
+      </Button>
+    </GridLayout>
+  </Page>
 </template>
 
 <script>
-  export default {
-    computed: {
-      message() {
-        return "Blank {N}-Vue app";
-      }
-    }
-  };
+export default {
+  data() {
+    return {
+      reservations: [{ date: "1 juli 2020" }],
+    };
+  },
+  computed: {
+    message() {
+      return "Voeg een reservering toe";
+    },
+  },
+  methods: {
+    onTap() {
+      // this.reservations.unshift({date:"1 augustus 2020"});
+    },
+  },
+};
 </script>
 
 <style scoped lang="scss">
-    @import '~@nativescript/theme/scss/variables/blue';
+@import "~@nativescript/theme/scss/variables/ruby";
 
-    // Custom styles
-    .fas {
-        @include colorize($color: accent);
-    }
+// Custom styles
+.fas {
+  @include colorize($color: accent);
+}
 
-    .info {
-        font-size: 20;
-        horizontal-align: center;
-        vertical-align: center;
-    }
+.info {
+  font-size: 20;
+  horizontal-align: center;
+  vertical-align: center;
+}
 </style>
