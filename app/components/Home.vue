@@ -5,16 +5,19 @@
     </ActionBar>
 
     <GridLayout rows="*, auto">
-      <Label row="0" class="info">
+      <Label v-if="reservations.length == 0" row="0" class="info">
         <FormattedString>
           <Span class="fas" text.decode="&#xf45f; " />
           <Span :text="message" />
         </FormattedString>
       </Label>
+      <ListView v-if="reservations.length > 0" for="reservation in reservations" row="0">
+        <Label :text="reservation.date"></Label>
+      </ListView>
       <Button row="1" class="-primary2" v-on:tap="onTap()">
         <FormattedString>
           <Span class="fas" text="&#xf45f;"></Span>
-          <Span text=" Nieuw"></Span>
+          <Span text=" Nieuw 2"></Span>
         </FormattedString>
       </Button>
     </GridLayout>
