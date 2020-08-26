@@ -1,6 +1,6 @@
 {
   "nativescript": {
-    "id": "org.nativescript.ikwilbeachen",
+    "id": "nl.ikwilbeachen",
     "tns-android": {
       "version": "6.5.0"
     },
@@ -8,7 +8,7 @@
       "version": "6.5.0"
     }
   },
-  "description": "NativeScript Application",
+  "description": "Ikwilbeachen by Beach Club Rotterdam",
   "license": "SEE LICENSE IN <your-license-filename>",
   "repository": "<fill-your-repository-here>",
   "dependencies": {
@@ -26,5 +26,5 @@
     "vue-loader": "~15.4.0"
   },
   "gitHead": "20a65d338ae8f8911087ab6615b89363f864b07b",
-  "readme": "NativeScript Application"
+  "readme": "Ikwilbeachen by Beach Club Rotterdam"
 }
