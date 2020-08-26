@@ -4,7 +4,7 @@
       <Label text="ikwilbeachen" />
     </ActionBar>
 
-    <GridLayout rows="*, auto, auto, auto, auto, auto">
+    <GridLayout v-if="showList" rows="*, auto">
       <Label v-if="reservations.length == 0" row="0" class="info">
         <FormattedString>
           <Span class="fas" text.decode="&#xf45f;" />
@@ -20,17 +20,26 @@
           </GridLayout>
         </v-template>
       </ListView>
-      <Button row="1" class="-primary" v-on:tap="onNewTap()">
+      <Button row="1" class="-primary" v-on:tap="showCreateForm()">
         <FormattedString>
           <Span class="far" text.decode="&#xf271;"></Span>
           <Span text=" Nieuwe reservering"></Span>
         </FormattedString>
       </Button>
-      <DatePicker row="2" v-model="startDateTime" :minDate="minDate" :maxDate="maxDate" />
-      <TimePicker row="3" v-model="startDateTime" :minuteInterval="minuteInterval" />
+    </GridLayout>
+
+    <GridLayout v-else rows="auto,auto,auto,auto,auto">
+      <DatePicker row="0" v-model="startDateTime" :minDate="minDate" :maxDate="maxDate" />
+      <TimePicker row="1" v-model="startDateTime" :minuteInterval="minuteInterval" />
       <!-- ERROR ON :minHour="minHour" :maxHour="maxHour" :minMinutes="minMinutes" :maxMinutes="maxMinutes" -->
-      <TimePicker row="4" v-model="endDateTime" :minuteInterval="minuteInterval" />
-      <Label row="5" :text="endDateTime"></Label>
+      <TimePicker row="2" v-model="endDateTime" :minuteInterval="minuteInterval" />
+      <Button row="3" class="-primary" v-on:tap="onNewTap()">
+        <FormattedString>
+          <Span class="far" text.decode="&#xf271;"></Span>
+          <Span text=" Maak reservering"></Span>
+        </FormattedString>
+      </Button>
+      <Label row="4" :text="endDateTime"></Label>
     </GridLayout>
   </Page>
 </template>
@@ -39,6 +48,7 @@
 export default {
   data() {
     return {
+      showList: true,
       minDate: new Date(),
       minHour: 9,
       maxHour: 20,
@@ -61,8 +71,11 @@ export default {
     },
   },
   watch: {
-    startDateTime: function (val, oldVal) {
-      this.endDateTime = new Date(this.startDateTime);
+    startDateTime: {
+      handler: function (val, oldVal) {
+        this.endDateTime = new Date(this.startDateTime);
+      },
+      immediate: true,
     },
   },
   methods: {
@@ -84,6 +97,9 @@ export default {
       if (minutes < 10) minutes = "0" + minutes;
       let time = hour + ":" + minutes;
       return time;
+    },
+    showCreateForm() {
+      this.showList = false;
     },
     onNewTap() {
       let startDateTime = this.startDateTime;
@@ -107,6 +123,8 @@ export default {
         endTime: endTime,
       });
       this.sortReservations();
+
+      this.showList = true;
     },
     onItemTap(reservation) {
       let index = this.reservations.indexOf(reservation);
