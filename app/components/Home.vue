@@ -11,16 +11,24 @@
           <Span :text="message" />
         </FormattedString>
       </Label>
+
       <ListView v-else for="reservation in reservations" row="0">
         <v-template>
-          <GridLayout columns="auto,auto,auto" v-on:tap="onItemTap(reservation)">
-            <Label col="0" :text="reservation.startDate"></Label>
-            <Label col="1" :text="reservation.startTime"></Label>
-            <Label col="2" :text="reservation.endTime"></Label>
+          <GridLayout columns="auto,auto,auto,*,auto">
+            <Label col="0">{{reservation.startDate}}</Label>
+            <Label col="1">{{reservation.startTime}} - {{reservation.endTime}}</Label>
+            <Label col="2">{{reservation.players}} player(s)</Label>
+            <Button col="3" class="-primary" v-on:tap="onJoinTap(reservation)">Join</Button>
+            <Label col="4" v-on:tap="onDeleteTap(reservation)">
+              <FormattedString>
+                <Span class="far" text.decode="&#xf2ed;"></Span>
+              </FormattedString>
+            </Label>
           </GridLayout>
         </v-template>
       </ListView>
-      <Button row="1" class="-primary" v-on:tap="showCreateForm()">
+
+      <Button row="1" class="-outline" v-on:tap="showCreateForm()">
         <FormattedString>
           <Span class="far" text.decode="&#xf271;"></Span>
           <Span text=" Nieuwe reservering"></Span>
@@ -30,11 +38,11 @@
 
     <ScrollView v-else orientation="vertical">
       <StackLayout orientation="vertical">
-        <Label :text="dateFromDateTime(startDate)"></Label>
+        <TextField :text="dateFromDateTime(startDate)" editable="false"></TextField>
         <DatePicker v-model="startDate" :minDate="minDate" :maxDate="maxDate" />
-        <Label :text="timeFromDateTime(startTime)"></Label>
+        <TextField :text="timeFromDateTime(startTime)" editable="false"></TextField>
         <TimePicker v-model="startTime" :minuteInterval="minuteInterval" />
-        <Label :text="timeFromDateTime(endTime)"></Label>
+        <TextField :text="timeFromDateTime(endTime)" editable="false"></TextField>
         <TimePicker v-model="endTime" :minuteInterval="minuteInterval" />
         <Button class="-primary" v-on:tap="onNewTap()">
           <FormattedString>
@@ -55,8 +63,8 @@ export default {
     return {
       showList: true,
       minDate: new Date(),
-      minHour: 9,
-      maxHour: 20,
+      minHour: 8,
+      maxHour: 22,
       minMinute: 0,
       maxMinute: 60,
       minuteInterval: 30,
@@ -183,17 +191,21 @@ export default {
       endDateTime.setHours(this.endTime.getHours());
       endDateTime.setMinutes(this.endTime.getMinutes());
       // console.log(endDateTime);
-      
+
       let reservation = {
         startDateTime: startDateTime,
         endDateTime: endDateTime,
         startDate: this.dateFromDateTime(this.startDate),
         startTime: this.timeFromDateTime(this.startTime),
         endTime: this.timeFromDateTime(this.endTime),
+        players: 0,
       };
       this.reservations.unshift(reservation);
     },
-    onItemTap(reservation) {
+    onJoinTap(reservation) {
+      reservation.players += 1;
+    },
+    onDeleteTap(reservation) {
       let index = this.reservations.indexOf(reservation);
       this.reservations.splice(index, 1);
     },
