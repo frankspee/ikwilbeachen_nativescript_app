@@ -14,7 +14,7 @@
       <ListView v-else for="reservation in reservations" row="0">
         <v-template>
           <GridLayout columns="auto,auto,auto" v-on:tap="onItemTap(reservation)">
-            <Label col="0" :text="reservation.date"></Label>
+            <Label col="0" :text="reservation.startDate"></Label>
             <Label col="1" :text="reservation.startTime"></Label>
             <Label col="2" :text="reservation.endTime"></Label>
           </GridLayout>
@@ -28,23 +28,28 @@
       </Button>
     </GridLayout>
 
-    <GridLayout v-else rows="auto,auto,auto,auto,auto">
-      <DatePicker row="0" v-model="startDateTime" :minDate="minDate" :maxDate="maxDate" />
-      <TimePicker row="1" v-model="startDateTime" :minuteInterval="minuteInterval" />
-      <!-- ERROR ON :minHour="minHour" :maxHour="maxHour" :minMinutes="minMinutes" :maxMinutes="maxMinutes" -->
-      <TimePicker row="2" v-model="endDateTime" :minuteInterval="minuteInterval" />
-      <Button row="3" class="-primary" v-on:tap="onNewTap()">
+    <ScrollView v-else orientation="vertical">
+    <StackLayout orientation="vertical">
+      <Label :text="dateFromDateTime(startDate)"></Label>
+      <DatePicker v-model="startDate" :minDate="minDate" :maxDate="maxDate" />
+      <Label :text="timeFromDateTime(startTime)"></Label>
+      <TimePicker v-model="startTime" :minuteInterval="minuteInterval" />
+      <Label :text="timeFromDateTime(endTime)"></Label>
+      <TimePicker v-model="endTime" :minuteInterval="minuteInterval" />
+      <Button class="-primary" v-on:tap="onNewTap()">
         <FormattedString>
           <Span class="far" text.decode="&#xf271;"></Span>
           <Span text=" Maak reservering"></Span>
         </FormattedString>
       </Button>
-      <Label row="4" :text="endDateTime"></Label>
-    </GridLayout>
+    </StackLayout>
+    </ScrollView>
   </Page>
 </template>
 
 <script>
+// ERROR ON TIMEPICKER :minHour="minHour" :maxHour="maxHour" :minMinutes="minMinutes" :maxMinutes="maxMinutes"
+
 export default {
   data() {
     return {
@@ -55,8 +60,9 @@ export default {
       minMinute: 0,
       maxMinute: 60,
       minuteInterval: 30,
-      startDateTime: new Date(),
-      endDateTime: null,
+      startDate: new Date(),
+      startTime: null,
+      endTime: null,
       reservations: [],
     };
   },
@@ -71,9 +77,55 @@ export default {
     },
   },
   watch: {
-    startDateTime: {
+    startDate: {
       handler: function (val, oldVal) {
-        this.endDateTime = new Date(this.startDateTime);
+        // TODO: round minutes to 0, 30, 60
+        this.startTime = new Date(this.startDate);
+        this.endTime = new Date(this.startDate);
+      },
+      immediate: true,
+    },
+    startTime: {
+      handler: function (val, oldVal) {
+        // console.log('startTime:' + this.startTime);
+        if (val.getHours() < this.minHour) {
+          this.startTime.setHours(this.minHour);
+          this.startTime.setMinutes(0);
+        }
+        if (val.getHours() > this.maxHour 
+        || val.getHours() === this.maxHour && val.getMinutes() > 0) {
+          this.startTime.setHours(this.maxHour);
+          this.startTime.setMinutes(0);
+        }
+        // console.log('startTimeC:' + this.startTime);
+        // console.log('endTime: ' + this.endTime);
+        // console.log('s>=e: ' + (this.startTime >= this.endTime));
+        if (this.startTime >= this.endTime) {
+          this.endTime = new Date(this.startTime);
+          this.endTime.setTime(this.startTime.getTime() + (1*60*60*1000)); // get time plus 1 hour
+        }
+      },
+      immediate: true,
+    },
+    endTime: {
+      handler: function (val, oldVal) {
+        // console.log('endTime: ' + this.endTime);
+        if (val.getHours() < this.minHour) {
+          this.endTime.setHours(this.minHour);
+          this.endTime.setMinutes(0);
+        }
+        if (val.getHours() > this.maxHour 
+        || val.getHours() === this.maxHour && val.getMinutes() > 0) {
+          this.endTime.setHours(this.maxHour);
+          this.endTime.setMinutes(0);
+        }
+        // console.log('endTimeC: ' + this.endTime);
+        // console.log('startTime:' + this.startTime);
+        // console.log('e<=s: ' + (this.endTime <= this.startTime));
+        if (this.endTime <= this.startTime) {
+          this.startTime = new Date(this.endTime);
+          this.startTime.setTime(this.endTime.getTime() - (1*60*60*1000)); // get time minus 1 hour
+        }
       },
       immediate: true,
     },
@@ -81,8 +133,11 @@ export default {
   methods: {
     sortReservations() {
       this.reservations.sort(
-        (a, b) => a.startDateTime.getTime() - b.startDateTime.getTime()
+        (a, b) => a.startDate.getTime() - b.startDate.getTime()
       );
+    },
+    resetForm() {
+this.startDate = new Date();
     },
     dateFromDateTime(dateTime) {
       let dd = String(dateTime.getDate()).padStart(2, "0");
@@ -102,29 +157,24 @@ export default {
       this.showList = false;
     },
     onNewTap() {
-      let startDateTime = this.startDateTime;
-      console.log(startDateTime);
+      let startDate = this.dateFromDateTime(this.startDate);
+      console.log(startDate);
 
-      let newDate = this.dateFromDateTime(startDateTime);
-      console.log(newDate);
-
-      let startTime = this.timeFromDateTime(startDateTime);
+      let startTime = this.timeFromDateTime(this.startTime);
       console.log(startTime);
 
-      console.log(this.endDateTime);
-      let endTime = this.timeFromDateTime(this.endDateTime);
+      let endTime = this.timeFromDateTime(this.endTime);
       console.log(endTime);
 
       this.reservations.unshift({
-        startDateTime: startDateTime,
-        endDateTime: this.endDateTime,
-        date: newDate,
+        startDate: startDate,
         startTime: startTime,
         endTime: endTime,
       });
-      this.sortReservations();
+      // this.sortReservations();
 
       this.showList = true;
+      this.resetForm();
     },
     onItemTap(reservation) {
       let index = this.reservations.indexOf(reservation);
