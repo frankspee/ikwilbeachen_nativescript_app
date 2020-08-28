@@ -29,20 +29,20 @@
     </GridLayout>
 
     <ScrollView v-else orientation="vertical">
-    <StackLayout orientation="vertical">
-      <Label :text="dateFromDateTime(startDate)"></Label>
-      <DatePicker v-model="startDate" :minDate="minDate" :maxDate="maxDate" />
-      <Label :text="timeFromDateTime(startTime)"></Label>
-      <TimePicker v-model="startTime" :minuteInterval="minuteInterval" />
-      <Label :text="timeFromDateTime(endTime)"></Label>
-      <TimePicker v-model="endTime" :minuteInterval="minuteInterval" />
-      <Button class="-primary" v-on:tap="onNewTap()">
-        <FormattedString>
-          <Span class="far" text.decode="&#xf271;"></Span>
-          <Span text=" Maak reservering"></Span>
-        </FormattedString>
-      </Button>
-    </StackLayout>
+      <StackLayout orientation="vertical">
+        <Label :text="dateFromDateTime(startDate)"></Label>
+        <DatePicker v-model="startDate" :minDate="minDate" :maxDate="maxDate" />
+        <Label :text="timeFromDateTime(startTime)"></Label>
+        <TimePicker v-model="startTime" :minuteInterval="minuteInterval" />
+        <Label :text="timeFromDateTime(endTime)"></Label>
+        <TimePicker v-model="endTime" :minuteInterval="minuteInterval" />
+        <Button class="-primary" v-on:tap="onNewTap()">
+          <FormattedString>
+            <Span class="far" text.decode="&#xf271;"></Span>
+            <Span text=" Maak reservering"></Span>
+          </FormattedString>
+        </Button>
+      </StackLayout>
     </ScrollView>
   </Page>
 </template>
@@ -80,9 +80,10 @@ export default {
     startDate: {
       handler: function (val, oldVal) {
         let minutes = this.startDate.getMinutes();
-        if (minutes > 0) minutes = 30;
         if (minutes > 30) minutes = 60;
+        else minutes = 30;
         this.startDate.setMinutes(minutes);
+        this.startDate.setSeconds(0);
         this.startTime = new Date(this.startDate);
         this.endTime = new Date(this.startDate);
       },
@@ -90,44 +91,48 @@ export default {
     },
     startTime: {
       handler: function (val, oldVal) {
-        // console.log('startTime:' + this.startTime);
+        // console.log("startTime:" + this.startTime);
         if (val.getHours() < this.minHour) {
           this.startTime.setHours(this.minHour);
           this.startTime.setMinutes(0);
         }
-        if (val.getHours() > this.maxHour 
-        || val.getHours() === this.maxHour && val.getMinutes() > 0) {
+        if (
+          val.getHours() > this.maxHour ||
+          (val.getHours() === this.maxHour && val.getMinutes() > 0)
+        ) {
           this.startTime.setHours(this.maxHour);
           this.startTime.setMinutes(0);
         }
         // console.log('startTimeC:' + this.startTime);
         // console.log('endTime: ' + this.endTime);
         // console.log('s>=e: ' + (this.startTime >= this.endTime));
-        if (this.startTime >= this.endTime) {
+        if (this.startTime.getHours() >= this.endTime.getHours()) {
           this.endTime = new Date(this.startTime);
-          this.endTime.setTime(this.startTime.getTime() + (1*60*60*1000)); // get time plus 1 hour
+          this.endTime.setTime(this.startTime.getTime() + 1 * 60 * 60 * 1000); // get time plus 1 hour
         }
       },
       immediate: true,
     },
     endTime: {
       handler: function (val, oldVal) {
-        // console.log('endTime: ' + this.endTime);
+        // console.log("endTime: " + this.endTime);
         if (val.getHours() < this.minHour) {
           this.endTime.setHours(this.minHour);
           this.endTime.setMinutes(0);
         }
-        if (val.getHours() > this.maxHour 
-        || val.getHours() === this.maxHour && val.getMinutes() > 0) {
+        if (
+          val.getHours() > this.maxHour ||
+          (val.getHours() === this.maxHour && val.getMinutes() > 0)
+        ) {
           this.endTime.setHours(this.maxHour);
           this.endTime.setMinutes(0);
         }
         // console.log('endTimeC: ' + this.endTime);
         // console.log('startTime:' + this.startTime);
         // console.log('e<=s: ' + (this.endTime <= this.startTime));
-        if (this.endTime <= this.startTime) {
+        if (this.endTime.getHours() <= this.startTime.getHours()) {
           this.startTime = new Date(this.endTime);
-          this.startTime.setTime(this.endTime.getTime() - (1*60*60*1000)); // get time minus 1 hour
+          this.startTime.setTime(this.endTime.getTime() - 1 * 60 * 60 * 1000); // get time minus 1 hour
         }
       },
       immediate: true,
@@ -136,7 +141,7 @@ export default {
   methods: {
     sortReservations() {
       this.reservations.sort(
-        (a, b) => a.startDate.getTime() - b.startDate.getTime()
+        (a, b) => a.startDateTime.getTime() - b.startDateTime.getTime()
       );
     },
     resetForm() {
@@ -160,21 +165,33 @@ export default {
       this.showList = false;
     },
     onNewTap() {
+      let startDateTime = new Date(this.startDate);
+      startDateTime.setHours(this.startTime.getHours());
+      startDateTime.setMinutes(this.startTime.getMinutes());
+      // console.log(startDateTime);
+
+      let endDateTime = new Date(this.startDate);
+      endDateTime.setHours(this.endTime.getHours());
+      endDateTime.setMinutes(this.endTime.getMinutes());
+      // console.log(endDateTime);
+
       let startDate = this.dateFromDateTime(this.startDate);
-      console.log(startDate);
+      // console.log(startDate);
 
       let startTime = this.timeFromDateTime(this.startTime);
-      console.log(startTime);
+      // console.log(startTime);
 
       let endTime = this.timeFromDateTime(this.endTime);
-      console.log(endTime);
+      // console.log(endTime);
 
       this.reservations.unshift({
+        startDateTime: startDateTime,
+        endDateTime: endDateTime,
         startDate: startDate,
         startTime: startTime,
         endTime: endTime,
       });
-      // this.sortReservations();
+      this.sortReservations();
 
       this.showList = true;
       this.resetForm();
