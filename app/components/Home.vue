@@ -55,7 +55,7 @@
       ></TextField>
       <DatePicker
         row="1"
-        v-if="showStartDateInput"
+        v-show="showStartDateInput"
         v-model="startDate"
         :minDate="minDate"
         :maxDate="maxDate"
@@ -68,7 +68,7 @@
       ></TextField>
       <TimePicker
         row="3"
-        v-if="showStartTimeInput"
+        v-show="showStartTimeInput"
         v-model="startTime"
         :minuteInterval="minuteInterval"
       />
@@ -80,7 +80,7 @@
       ></TextField>
       <TimePicker
         row="5"
-        v-if="showEndTimeInput"
+        v-show="showEndTimeInput"
         v-model="endTime"
         :minuteInterval="minuteInterval"
       />
@@ -199,7 +199,7 @@ export default {
     },
     resetForm() {
       this.startDate = new Date();
-      this.showStartDateInput = false;
+      this.showStartDateInput = true;
       this.showStartTimeInput = false;
       this.showEndTimeInput = false;
     },
@@ -218,6 +218,7 @@ export default {
       return time;
     },
     showCreateForm() {
+      this.resetForm();
       this.showList = false;
     },
     onStartDateTap() {
@@ -239,7 +240,6 @@ export default {
       this.addReservation();
       this.sortReservations();
       this.showList = true;
-      this.resetForm();
     },
     addReservation() {
       let startDateTime = new Date(this.startDate);
