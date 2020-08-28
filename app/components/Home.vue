@@ -18,7 +18,17 @@
             <Label col="0">{{reservation.startDate}}</Label>
             <Label col="1">{{reservation.startTime}} - {{reservation.endTime}}</Label>
             <Label col="2">{{reservation.players}} player(s)</Label>
-            <Button col="3" class="-primary" v-on:tap="onJoinTap(reservation)">Join</Button>
+            <Button
+              col="3"
+              :isEnabled="!reservation.isJoined"
+              class="-primary"
+              v-on:tap="onJoinTap(reservation)"
+            >
+              <FormattedString>
+                <Span v-if="!reservation.isJoined">Join</Span>
+                <Span v-else>Joined</Span>
+              </FormattedString>
+            </Button>
             <Label col="4" v-on:tap="onDeleteTap(reservation)">
               <FormattedString>
                 <Span class="far" text.decode="&#xf2ed;"></Span>
@@ -36,22 +46,51 @@
       </Button>
     </GridLayout>
 
-    <ScrollView v-else orientation="vertical">
-      <StackLayout orientation="vertical">
-        <TextField :text="dateFromDateTime(startDate)" editable="false"></TextField>
-        <DatePicker v-model="startDate" :minDate="minDate" :maxDate="maxDate" />
-        <TextField :text="timeFromDateTime(startTime)" editable="false"></TextField>
-        <TimePicker v-model="startTime" :minuteInterval="minuteInterval" />
-        <TextField :text="timeFromDateTime(endTime)" editable="false"></TextField>
-        <TimePicker v-model="endTime" :minuteInterval="minuteInterval" />
-        <Button class="-primary" v-on:tap="onNewTap()">
-          <FormattedString>
-            <Span class="far" text.decode="&#xf271;"></Span>
-            <Span text=" Maak reservering"></Span>
-          </FormattedString>
-        </Button>
-      </StackLayout>
-    </ScrollView>
+    <GridLayout v-else rows="auto,auto,auto,auto,auto,*,auto">
+      <TextField
+        row="0"
+        :text="dateFromDateTime(startDate)"
+        editable="false"
+        v-on:tap="onStartDateTap()"
+      ></TextField>
+      <DatePicker
+        row="1"
+        v-if="showStartDateInput"
+        v-model="startDate"
+        :minDate="minDate"
+        :maxDate="maxDate"
+      />
+      <TextField
+        row="2"
+        :text="timeFromDateTime(startTime)"
+        editable="false"
+        v-on:tap="onStartTimeTap()"
+      ></TextField>
+      <TimePicker
+        row="3"
+        v-if="showStartTimeInput"
+        v-model="startTime"
+        :minuteInterval="minuteInterval"
+      />
+      <TextField
+        row="4"
+        :text="timeFromDateTime(endTime)"
+        editable="false"
+        v-on:tap="onEndTimeTap()"
+      ></TextField>
+      <TimePicker
+        row="5"
+        v-if="showEndTimeInput"
+        v-model="endTime"
+        :minuteInterval="minuteInterval"
+      />
+      <Button row="6" class="-primary" v-on:tap="onNewTap()">
+        <FormattedString>
+          <Span class="far" text.decode="&#xf271;"></Span>
+          <Span text=" Maak reservering"></Span>
+        </FormattedString>
+      </Button>
+    </GridLayout>
   </Page>
 </template>
 
@@ -72,6 +111,9 @@ export default {
       startTime: null,
       endTime: null,
       reservations: [],
+      showStartDateInput: false,
+      showStartTimeInput: false,
+      showEndTimeInput: false,
     };
   },
   mounted() {
@@ -157,6 +199,9 @@ export default {
     },
     resetForm() {
       this.startDate = new Date();
+      this.showStartDateInput = false;
+      this.showStartTimeInput = false;
+      this.showEndTimeInput = false;
     },
     dateFromDateTime(dateTime) {
       let dd = String(dateTime.getDate()).padStart(2, "0");
@@ -174,6 +219,21 @@ export default {
     },
     showCreateForm() {
       this.showList = false;
+    },
+    onStartDateTap() {
+      this.showStartDateInput = !this.showStartDateInput;
+      this.showStartTimeInput = false;
+      this.showEndTimeInput = false;
+    },
+    onStartTimeTap() {
+      this.showStartDateInput = false;
+      this.showStartTimeInput = !this.showStartTimeInput;
+      this.showEndTimeInput = false;
+    },
+    onEndTimeTap() {
+      this.showStartDateInput = false;
+      this.showStartTimeInput = false;
+      this.showEndTimeInput = !this.showEndTimeInput;
     },
     onNewTap() {
       this.addReservation();
@@ -198,11 +258,13 @@ export default {
         startDate: this.dateFromDateTime(this.startDate),
         startTime: this.timeFromDateTime(this.startTime),
         endTime: this.timeFromDateTime(this.endTime),
-        players: 0,
+        players: Math.round(Math.random(0, 10) * 10),
+        isJoined: false,
       };
       this.reservations.unshift(reservation);
     },
     onJoinTap(reservation) {
+      reservation.isJoined = true;
       reservation.players += 1;
     },
     onDeleteTap(reservation) {
