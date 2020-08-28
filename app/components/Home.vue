@@ -79,7 +79,10 @@ export default {
   watch: {
     startDate: {
       handler: function (val, oldVal) {
-        // TODO: round minutes to 0, 30, 60
+        let minutes = this.startDate.getMinutes();
+        if (minutes > 0) minutes = 30;
+        if (minutes > 30) minutes = 60;
+        this.startDate.setMinutes(minutes);
         this.startTime = new Date(this.startDate);
         this.endTime = new Date(this.startDate);
       },
@@ -137,7 +140,7 @@ export default {
       );
     },
     resetForm() {
-this.startDate = new Date();
+      this.startDate = new Date();
     },
     dateFromDateTime(dateTime) {
       let dd = String(dateTime.getDate()).padStart(2, "0");
