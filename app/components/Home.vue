@@ -66,6 +66,9 @@ export default {
       reservations: [],
     };
   },
+  mounted() {
+    this.addReservation();
+  },
   computed: {
     message() {
       return " Voeg een reservering toe";
@@ -165,6 +168,12 @@ export default {
       this.showList = false;
     },
     onNewTap() {
+      this.addReservation();
+      this.sortReservations();
+      this.showList = true;
+      this.resetForm();
+    },
+    addReservation() {
       let startDateTime = new Date(this.startDate);
       startDateTime.setHours(this.startTime.getHours());
       startDateTime.setMinutes(this.startTime.getMinutes());
@@ -174,27 +183,15 @@ export default {
       endDateTime.setHours(this.endTime.getHours());
       endDateTime.setMinutes(this.endTime.getMinutes());
       // console.log(endDateTime);
-
-      let startDate = this.dateFromDateTime(this.startDate);
-      // console.log(startDate);
-
-      let startTime = this.timeFromDateTime(this.startTime);
-      // console.log(startTime);
-
-      let endTime = this.timeFromDateTime(this.endTime);
-      // console.log(endTime);
-
-      this.reservations.unshift({
+      
+      let reservation = {
         startDateTime: startDateTime,
         endDateTime: endDateTime,
-        startDate: startDate,
-        startTime: startTime,
-        endTime: endTime,
-      });
-      this.sortReservations();
-
-      this.showList = true;
-      this.resetForm();
+        startDate: this.dateFromDateTime(this.startDate),
+        startTime: this.timeFromDateTime(this.startTime),
+        endTime: this.timeFromDateTime(this.endTime),
+      };
+      this.reservations.unshift(reservation);
     },
     onItemTap(reservation) {
       let index = this.reservations.indexOf(reservation);
