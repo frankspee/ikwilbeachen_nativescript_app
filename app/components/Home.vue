@@ -5,10 +5,10 @@
     </ActionBar>
 
     <GridLayout v-if="showList" rows="*, auto">
-      <Label v-if="reservations.length == 0" row="0" class="info">
+      <Label v-if="!hasReservations" row="0" class="info">
         <FormattedString>
           <Span class="fas" text.decode="&#xf45f;" />
-          <Span :text="message" />
+          <Span text=" Nog geen VrijSpelen bekend" />
         </FormattedString>
       </Label>
 
@@ -38,10 +38,14 @@
         </v-template>
       </ListView>
 
-      <Button row="1" class="-outline" v-on:tap="showCreateForm()">
+      <Button
+        row="1"
+        :class="[{'-primary' : !hasReservations},{'-outline' : hasReservations}]"
+        v-on:tap="showCreateForm()"
+      >
         <FormattedString>
           <Span class="far" text.decode="&#xf271;"></Span>
-          <Span text=" Nieuwe reservering"></Span>
+          <Span text=" Voeg nieuw VrijSpelen toe"></Span>
         </FormattedString>
       </Button>
     </GridLayout>
@@ -84,12 +88,15 @@
         v-model="endTime"
         :minuteInterval="minuteInterval"
       />
-      <Button row="6" class="-primary" v-on:tap="onNewTap()">
-        <FormattedString>
-          <Span class="far" text.decode="&#xf271;"></Span>
-          <Span text=" Maak reservering"></Span>
-        </FormattedString>
-      </Button>
+      <StackLayout row="6" orientation="horizontal">
+        <Button width="33%" class="-outline" v-on:tap="onCancelTap()" text="Annuleren" />
+        <Button width="50%" horizontalAlignment="right" class="-primary" v-on:tap="onNewTap()">
+          <FormattedString>
+            <Span class="far" text.decode="&#xf274;"></Span>
+            <Span text=" VrijSpelen opslaan"></Span>
+          </FormattedString>
+        </Button>
+      </StackLayout>
     </GridLayout>
   </Page>
 </template>
@@ -120,8 +127,8 @@ export default {
     this.addReservation();
   },
   computed: {
-    message() {
-      return " Voeg een reservering toe";
+    hasReservations() {
+      return this.reservations.length > 0;
     },
     maxDate() {
       let maxDate = new Date();
@@ -235,6 +242,9 @@ export default {
       this.showStartDateInput = false;
       this.showStartTimeInput = false;
       this.showEndTimeInput = !this.showEndTimeInput;
+    },
+    onCancelTap() {
+      this.showList = true;
     },
     onNewTap() {
       this.addReservation();
