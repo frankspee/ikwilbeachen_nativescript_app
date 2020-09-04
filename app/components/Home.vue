@@ -41,7 +41,7 @@
       <Button
         row="1"
         :class="[{'-primary' : !hasReservations},{'-outline' : hasReservations}]"
-        v-on:tap="showCreateForm()"
+        v-on:tap="onAddFormTap()"
       >
         <FormattedString>
           <Span class="far" text.decode="&#xf271;"></Span>
@@ -90,7 +90,12 @@
       />
       <StackLayout row="6" orientation="horizontal">
         <Button width="33%" class="-outline" v-on:tap="onCancelTap()" text="Annuleren" />
-        <Button width="50%" horizontalAlignment="right" class="-primary" v-on:tap="onNewTap()">
+        <Button
+          width="50%"
+          horizontalAlignment="right"
+          class="-primary"
+          v-on:tap="onSubmitFormTap()"
+        >
           <FormattedString>
             <Span class="far" text.decode="&#xf274;"></Span>
             <Span text=" VrijSpelen opslaan"></Span>
@@ -103,6 +108,7 @@
 
 <script>
 // ERROR ON TIMEPICKER :minHour="minHour" :maxHour="maxHour" :minMinutes="minMinutes" :maxMinutes="maxMinutes"
+import api from "@/api";
 
 export default {
   data() {
@@ -124,12 +130,14 @@ export default {
     };
   },
   mounted() {
-    this.addReservation();
+    this.submitReservation();
   },
   computed: {
+    // LIST
     hasReservations() {
       return this.reservations.length > 0;
     },
+    // FORM
     maxDate() {
       let maxDate = new Date();
       maxDate.setDate(maxDate.getDate() + 10);
@@ -137,6 +145,7 @@ export default {
     },
   },
   watch: {
+    // FORM
     startDate: {
       handler: function (val, oldVal) {
         let minutes = this.startDate.getMinutes();
@@ -199,17 +208,7 @@ export default {
     },
   },
   methods: {
-    sortReservations() {
-      this.reservations.sort(
-        (a, b) => a.startDateTime.getTime() - b.startDateTime.getTime()
-      );
-    },
-    resetForm() {
-      this.startDate = new Date();
-      this.showStartDateInput = true;
-      this.showStartTimeInput = false;
-      this.showEndTimeInput = false;
-    },
+    // UTILS
     dateFromDateTime(dateTime) {
       let dd = String(dateTime.getDate()).padStart(2, "0");
       let mm = String(dateTime.getMonth() + 1).padStart(2, "0"); //January is 0!
@@ -224,9 +223,31 @@ export default {
       let time = hour + ":" + minutes;
       return time;
     },
-    showCreateForm() {
+    // LIST
+    refreshReservations() {
+      // TODO: improve this local state management with Vuex
+      this.reservations = api.getReservations();
+    },
+    onJoinTap(reservation) {
+      reservation.isJoined = true;
+      reservation.players += 1;
+    },
+    onDeleteTap(reservation) {
+      api.deleteReservation(reservation);
+
+      // TODO: improve this local state management with Vuex
+      this.refreshReservations();
+    },
+    onAddFormTap() {
       this.resetForm();
       this.showList = false;
+    },
+    // FORM
+    resetForm() {
+      this.startDate = new Date();
+      this.showStartDateInput = true;
+      this.showStartTimeInput = false;
+      this.showEndTimeInput = false;
     },
     onStartDateTap() {
       this.showStartDateInput = !this.showStartDateInput;
@@ -246,12 +267,11 @@ export default {
     onCancelTap() {
       this.showList = true;
     },
-    onNewTap() {
-      this.addReservation();
-      this.sortReservations();
+    onSubmitFormTap() {
+      this.submitReservation();
       this.showList = true;
     },
-    addReservation() {
+    submitReservation() {
       let startDateTime = new Date(this.startDate);
       startDateTime.setHours(this.startTime.getHours());
       startDateTime.setMinutes(this.startTime.getMinutes());
@@ -271,15 +291,10 @@ export default {
         players: Math.round(Math.random(0, 10) * 10),
         isJoined: false,
       };
-      this.reservations.unshift(reservation);
-    },
-    onJoinTap(reservation) {
-      reservation.isJoined = true;
-      reservation.players += 1;
-    },
-    onDeleteTap(reservation) {
-      let index = this.reservations.indexOf(reservation);
-      this.reservations.splice(index, 1);
+      api.addReservation(reservation);
+
+      // TODO: improve this local state management with Vuex
+      this.refreshReservations();
     },
   },
 };
