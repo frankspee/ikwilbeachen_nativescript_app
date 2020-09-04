@@ -130,6 +130,9 @@ export default {
     };
   },
   mounted() {
+    // TODO: improve this local state management with Vuex
+    this.refreshReservations();
+    // FIXME: this is a debug reservation for easy testing
     this.submitReservation();
   },
   computed: {
