@@ -108,7 +108,7 @@
 
 <script>
 // ERROR ON TIMEPICKER :minHour="minHour" :maxHour="maxHour" :minMinutes="minMinutes" :maxMinutes="maxMinutes"
-import api from "@/api";
+import api from "@/api/reservations";
 
 export default {
   data() {
@@ -286,6 +286,7 @@ export default {
       // console.log(endDateTime);
 
       let reservation = {
+        id: null,
         startDateTime: startDateTime,
         endDateTime: endDateTime,
         startDate: this.dateFromDateTime(this.startDate),
