@@ -230,6 +230,7 @@ export default {
     refreshReservations() {
       // TODO: improve this local state management with Vuex
       this.reservations = api.getReservations();
+      console.log(this.reservations);
     },
     onJoinTap(reservation) {
       reservation.isJoined = true;
