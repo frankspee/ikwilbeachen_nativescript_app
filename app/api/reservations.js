@@ -14,6 +14,19 @@ export default {
       .then(this.getJson)
       .then(data => {
         return data;
+        // return data.map(reservation => {
+        //   // TODO: make this into a separate reservation object to be used by Home.vue as well.
+        //   return {
+        //     id: parseInt(reservation.id),
+        //     startDateTime: new Date(reservation.startDateTime),
+        //     endDateTime: new Date(reservation.endDateTime),
+        //     startDate: this.dateFromDateTime(this.startDate),
+        //     startTime: this.timeFromDateTime(this.startTime),
+        //     endTime: this.timeFromDateTime(this.endTime),
+        //     players: Math.round(Math.random(0, 10) * 10),
+        //     isJoined: false,
+        //   };
+        // });
       })
   },
   addReservation(reservation) {

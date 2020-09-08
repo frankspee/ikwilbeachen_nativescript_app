@@ -5,7 +5,7 @@
     </ActionBar>
 
     <GridLayout v-if="showList" rows="*, auto">
-      <Label v-if="!hasReservations" row="0" class="info">
+      <Label v-if="!hasReservations && !this.isLoading" row="0" class="info">
         <FormattedString>
           <Span class="fas" text.decode="&#xf45f;" />
           <Span text=" Nog geen VrijSpelen bekend" />
@@ -109,10 +109,12 @@
 <script>
 // ERROR ON TIMEPICKER :minHour="minHour" :maxHour="maxHour" :minMinutes="minMinutes" :maxMinutes="maxMinutes"
 import api from "@/api/reservations";
+import reservationModel from "@/models/reservation";
 
 export default {
   data() {
     return {
+      isLoading: true,
       showList: true,
       minDate: new Date(),
       minHour: 8,
@@ -211,26 +213,17 @@ export default {
     },
   },
   methods: {
-    // UTILS
-    dateFromDateTime(dateTime) {
-      let dd = String(dateTime.getDate()).padStart(2, "0");
-      let mm = String(dateTime.getMonth() + 1).padStart(2, "0"); //January is 0!
-      let yyyy = dateTime.getFullYear();
-      let dateString = dd + "-" + mm + "-" + yyyy;
-      return dateString;
-    },
-    timeFromDateTime(dateTime) {
-      let hour = dateTime.getHours();
-      let minutes = dateTime.getMinutes();
-      if (minutes < 10) minutes = "0" + minutes;
-      let time = hour + ":" + minutes;
-      return time;
-    },
+    ...reservationModel,
     // LIST
     refreshReservations() {
       // TODO: improve this local state management with Vuex
       api.getReservations().then((data) => {
         this.reservations = [...data];
+        // FIXME: sorting on client
+        // this.reservations.sort(
+        //   (a, b) => a.startDateTime.getTime() - b.startDateTime.getTime()
+        // );
+        this.isLoading = false;
       });
     },
     onJoinTap(reservation) {
@@ -238,6 +231,7 @@ export default {
       reservation.players += 1;
     },
     onDeleteTap(reservation) {
+      this.isLoading = true;
       api.deleteReservation(reservation).then(() => {
         // TODO: improve this local state management with Vuex
         this.refreshReservations();
@@ -277,27 +271,12 @@ export default {
       this.showList = true;
     },
     submitReservation() {
-      let startDateTime = new Date(this.startDate);
-      startDateTime.setHours(this.startTime.getHours());
-      startDateTime.setMinutes(this.startTime.getMinutes());
-      // console.log(startDateTime);
-
-      let endDateTime = new Date(this.startDate);
-      endDateTime.setHours(this.endTime.getHours());
-      endDateTime.setMinutes(this.endTime.getMinutes());
-      // console.log(endDateTime);
-
-      let reservation = {
-        id: null,
-        startDateTime: startDateTime,
-        endDateTime: endDateTime,
-        startDate: this.dateFromDateTime(this.startDate),
-        startTime: this.timeFromDateTime(this.startTime),
-        endTime: this.timeFromDateTime(this.endTime),
-        players: Math.round(Math.random(0, 10) * 10),
-        isJoined: false,
-      };
-
+      let reservation = this.createReservation(
+        this.startDate,
+        this.startTime,
+        this.endTime
+      );
+      this.isLoading = true;
       api.addReservation(reservation).then(() => {
         // TODO: improve this local state management with Vuex
         this.refreshReservations();
