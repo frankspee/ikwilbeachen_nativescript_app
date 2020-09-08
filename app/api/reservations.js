@@ -36,16 +36,17 @@ export default {
     })
       .then(this.validateCode)
       .then(new Promise((resolve, reject) => {
-        resolve();
+        resolve(response);
       }))
       .catch(e => {
-        console.error('Error parsing JSON response: ' + e);
-        throw 'Error parsing JSON response: ' + e;
+        let message = 'Could not delete the reservation with id: ' + reservation.id + '. Error: ' + e;
+        console.error(message);
+        throw message;
       })
   },
   validateCode(response) {
     return new Promise((resolve, reject) => {
-      if (response.statusCode >= 200 && response.statusCode < 300) {
+      if ((response.statusCode >= 200 && response.statusCode < 300) || response.statusCode == 404) {
         resolve(response);
       }
       reject('Response with code: ' + response.statusCode +
@@ -57,8 +58,9 @@ export default {
       resolve(response.content.toJSON());
     })
       .catch(e => {
-        console.error('Error parsing JSON response: ' + e);
-        throw 'Error parsing JSON response: ' + e;
+        let message = 'Error parsing JSON response: ' + e;
+        console.error(message);
+        throw message;
       })
   }
 }
