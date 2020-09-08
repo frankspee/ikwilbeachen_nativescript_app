@@ -14,8 +14,8 @@ export default {
         let time = hour + ":" + minutes;
         return time;
     },
-    // CONSTRUCTOR
-    createReservation(startDate, startTime, endTime) {
+    // METHODS
+    newReservation(startDate, startTime, endTime) {
         let startDateTime = new Date(startDate);
         startDateTime.setHours(startTime.getHours());
         startDateTime.setMinutes(startTime.getMinutes());
@@ -24,15 +24,19 @@ export default {
         endDateTime.setHours(endTime.getHours());
         endDateTime.setMinutes(endTime.getMinutes());
 
-        return {
-            id: null,
+        return this.createReservation(startDateTime, endDateTime);
+    },
+    createReservation(startDateTime, endDateTime, id) {
+        let reservation = {
+            id: id,
             startDateTime: startDateTime,
             endDateTime: endDateTime,
-            startDate: this.dateFromDateTime(startDate),
-            startTime: this.timeFromDateTime(startTime),
-            endTime: this.timeFromDateTime(endTime),
-            players: Math.round(Math.random(0, 10) * 10),
-            isJoined: false,
+            startDate: this.dateFromDateTime(startDateTime),
+            startTime: this.timeFromDateTime(startDateTime),
+            endTime: this.timeFromDateTime(endDateTime),
+            players: Math.round(Math.random(0, 10) * 10), // FIXME: to something whichs works
+            isJoined: false, // FIXME: to something whichs works
         };
+        return reservation;
     }
 }

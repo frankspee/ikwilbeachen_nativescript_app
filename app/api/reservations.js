@@ -1,5 +1,7 @@
 import * as http from 'tns-core-modules/http';
 
+import reservationModel from "@/models/reservation";
+
 const _baseUrl = "http://10.0.2.2:3000/reservations/";
 // const _baseUrl = "https://ikwilbeachen.azurewebsites.net/reservations/";
 
@@ -13,20 +15,13 @@ export default {
       .then(this.validateCode)
       .then(this.getJson)
       .then(data => {
-        return data;
-        // return data.map(reservation => {
-        //   // TODO: make this into a separate reservation object to be used by Home.vue as well.
-        //   return {
-        //     id: parseInt(reservation.id),
-        //     startDateTime: new Date(reservation.startDateTime),
-        //     endDateTime: new Date(reservation.endDateTime),
-        //     startDate: this.dateFromDateTime(this.startDate),
-        //     startTime: this.timeFromDateTime(this.startTime),
-        //     endTime: this.timeFromDateTime(this.endTime),
-        //     players: Math.round(Math.random(0, 10) * 10),
-        //     isJoined: false,
-        //   };
-        // });
+        return data.map(reservation => {
+          return reservationModel.createReservation(
+            new Date(reservation.startDateTime),
+            new Date(reservation.endDateTime),
+            parseInt(reservation.id)
+          );
+        });
       })
   },
   addReservation(reservation) {

@@ -217,12 +217,11 @@ export default {
     // LIST
     refreshReservations() {
       // TODO: improve this local state management with Vuex
-      api.getReservations().then((data) => {
-        this.reservations = [...data];
-        // FIXME: sorting on client
-        // this.reservations.sort(
-        //   (a, b) => a.startDateTime.getTime() - b.startDateTime.getTime()
-        // );
+      api.getReservations().then(reservations => {
+        this.reservations = [...reservations];
+        this.reservations.sort(
+          (a, b) => a.startDateTime.getTime() - b.startDateTime.getTime()
+        );
         this.isLoading = false;
       });
     },
@@ -271,7 +270,7 @@ export default {
       this.showList = true;
     },
     submitReservation() {
-      let reservation = this.createReservation(
+      let reservation = this.newReservation(
         this.startDate,
         this.startTime,
         this.endTime
