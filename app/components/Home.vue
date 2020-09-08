@@ -229,18 +229,19 @@ export default {
     // LIST
     refreshReservations() {
       // TODO: improve this local state management with Vuex
-      this.reservations = api.getReservations();
-      console.log(this.reservations);
+      api.getReservations().then((data) => {
+        this.reservations = [...data];
+      });
     },
     onJoinTap(reservation) {
       reservation.isJoined = true;
       reservation.players += 1;
     },
     onDeleteTap(reservation) {
-      api.deleteReservation(reservation);
-
-      // TODO: improve this local state management with Vuex
-      this.refreshReservations();
+      api.deleteReservation(reservation).then(() => {
+        // TODO: improve this local state management with Vuex
+        this.refreshReservations();
+      });
     },
     onAddFormTap() {
       this.resetForm();
@@ -296,10 +297,11 @@ export default {
         players: Math.round(Math.random(0, 10) * 10),
         isJoined: false,
       };
-      api.addReservation(reservation);
 
-      // TODO: improve this local state management with Vuex
-      this.refreshReservations();
+      api.addReservation(reservation).then(() => {
+        // TODO: improve this local state management with Vuex
+        this.refreshReservations();
+      });
     },
   },
 };
