@@ -19,12 +19,13 @@ export default {
           return reservationModel.createReservation(
             new Date(reservation.startDateTime),
             new Date(reservation.endDateTime),
-            parseInt(reservation.id)
+            parseInt(reservation.id),
+            parseInt(reservation.players)
           );
         });
       })
   },
-  addReservation(reservation) {
+  createReservation(reservation) {
     return http.request({
       url: _baseUrl,
       method: 'POST',
@@ -35,6 +36,23 @@ export default {
       .then(this.getJson)
       .then(data => {
         return reservation;
+      })
+  },
+  updateReservation(reservation) {
+    return http.request({
+      url: _baseUrl + reservation.id,
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      content: JSON.stringify(reservation)
+    })
+      .then(this.validateCode)
+      .then(new Promise((resolve, reject) => {
+        resolve(response);
+      }))
+      .catch(e => {
+        let message = 'Could not update the reservation with id: ' + reservation.id + '. Error: ' + e;
+        console.error(message);
+        throw message;
       })
   },
   deleteReservation(reservation) {

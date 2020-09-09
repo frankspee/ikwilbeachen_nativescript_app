@@ -226,8 +226,13 @@ export default {
       });
     },
     onJoinTap(reservation) {
-      reservation.isJoined = true;
       reservation.players += 1;
+      api.updateReservation(reservation).then(() => {
+        // TODO: improve this local state management with Vuex
+        this.refreshReservations();
+      });
+      // FIXME: isJoined needs to be a player specific thing??
+      reservation.isJoined = true;
     },
     onDeleteTap(reservation) {
       this.isLoading = true;
@@ -276,7 +281,7 @@ export default {
         this.endTime
       );
       this.isLoading = true;
-      api.addReservation(reservation).then(() => {
+      api.createReservation(reservation).then(() => {
         // TODO: improve this local state management with Vuex
         this.refreshReservations();
       });

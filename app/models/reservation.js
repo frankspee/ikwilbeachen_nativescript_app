@@ -26,7 +26,7 @@ export default {
 
         return this.createReservation(startDateTime, endDateTime);
     },
-    createReservation(startDateTime, endDateTime, id) {
+    createReservation(startDateTime, endDateTime, id, players = 0) {
         let reservation = {
             id: id,
             startDateTime: startDateTime,
@@ -34,8 +34,8 @@ export default {
             startDate: this.dateFromDateTime(startDateTime),
             startTime: this.timeFromDateTime(startDateTime),
             endTime: this.timeFromDateTime(endDateTime),
-            players: Math.round(Math.random(0, 10) * 10), // FIXME: to something whichs works
-            isJoined: false, // FIXME: to something whichs works
+            players: players,
+            isJoined: false, // FIXME: isJoined needs to be a player specific thing??
         };
         return reservation;
     }
