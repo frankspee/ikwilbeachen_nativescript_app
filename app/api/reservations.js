@@ -1,6 +1,6 @@
 import * as http from 'tns-core-modules/http';
 
-import reservationModel from "@/models/reservation";
+import Reservation from "@/models/Reservation";
 
 const _baseUrl = "http://10.0.2.2:3000/reservations/";
 // const _baseUrl = "https://ikwilbeachen.azurewebsites.net/reservations/";
@@ -16,7 +16,7 @@ export default {
       .then(this.getJson)
       .then(data => {
         return data.map(reservation => {
-          return reservationModel.createReservation(
+          return new Reservation(
             new Date(reservation.startDateTime),
             new Date(reservation.endDateTime),
             parseInt(reservation.id),
@@ -34,8 +34,13 @@ export default {
     })
       .then(this.validateCode)
       .then(this.getJson)
-      .then(data => {
-        return reservation;
+      .then(reservation => {
+        return new Reservation(
+          new Date(reservation.startDateTime),
+          new Date(reservation.endDateTime),
+          parseInt(reservation.id),
+          parseInt(reservation.players)
+        );
       })
   },
   updateReservation(reservation) {

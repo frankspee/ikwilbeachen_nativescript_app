@@ -109,7 +109,7 @@
 <script>
 // ERROR ON TIMEPICKER :minHour="minHour" :maxHour="maxHour" :minMinutes="minMinutes" :maxMinutes="maxMinutes"
 import api from "@/api/reservations";
-import reservationModel from "@/models/reservation";
+import Reservation from "@/models/Reservation";
 
 export default {
   data() {
@@ -213,7 +213,7 @@ export default {
     },
   },
   methods: {
-    ...reservationModel,
+    ...Reservation, // FIXME: the method UTILS are not correctly loaded for the form anymore!!
     // LIST
     refreshReservations() {
       // TODO: improve this local state management with Vuex
@@ -227,7 +227,6 @@ export default {
     },
     onJoinTap(reservation) {
       reservation.addPlayer();
-      reservation.players += 1;
 
       api.updateReservation(reservation).then(() => {
         // TODO: improve this local state management with Vuex
@@ -277,11 +276,12 @@ export default {
       this.showList = true;
     },
     submitReservation() {
-      let reservation = this.newReservation(
+      let reservation = Reservation.newReservation(
         this.startDate,
         this.startTime,
         this.endTime
       );
+
       this.isLoading = true;
       api.createReservation(reservation).then(() => {
         // TODO: improve this local state management with Vuex
