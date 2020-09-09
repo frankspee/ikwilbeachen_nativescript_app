@@ -226,7 +226,9 @@ export default {
       });
     },
     onJoinTap(reservation) {
+      reservation.addPlayer();
       reservation.players += 1;
+
       api.updateReservation(reservation).then(() => {
         // TODO: improve this local state management with Vuex
         this.refreshReservations();

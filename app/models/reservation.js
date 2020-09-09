@@ -1,3 +1,5 @@
+import * as platformModule from "tns-core-modules/platform";
+
 export default {
     // UTILS
     dateFromDateTime(dateTime) {
@@ -38,5 +40,8 @@ export default {
             isJoined: false, // FIXME: isJoined needs to be a player specific thing??
         };
         return reservation;
+    },
+    addPlayer()  {
+        console.log("addPlayer() UUID:" + platformModule.device.uuid);
     }
 }
