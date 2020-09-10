@@ -20,7 +20,7 @@ export default {
             new Date(reservation.startDateTime),
             new Date(reservation.endDateTime),
             parseInt(reservation.id),
-            parseInt(reservation.players)
+            reservation.players
           );
         });
       })
@@ -39,7 +39,7 @@ export default {
           new Date(reservation.startDateTime),
           new Date(reservation.endDateTime),
           parseInt(reservation.id),
-          parseInt(reservation.players)
+          reservation.players
         );
       })
   },

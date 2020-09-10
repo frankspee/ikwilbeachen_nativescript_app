@@ -2,19 +2,19 @@
   <GridLayout columns="auto,auto,auto,*,auto">
     <Label col="0">{{reservation.startDate}}</Label>
     <Label col="1">{{reservation.startTime}} - {{reservation.endTime}}</Label>
-    <Label col="2">{{reservation.players}} player(s)</Label>
+    <Label col="2">{{reservation.players.length}} player(s)</Label>
     <Button
       col="3"
-      :isEnabled="!reservation.isJoined"
+      :isEnabled="!isJoined"
       class="-primary"
-      v-on:tap="onJoinTap(reservation)"
+      v-on:tap="onJoinTap()"
     >
       <FormattedString>
-        <Span v-if="!reservation.isJoined">Join</Span>
+        <Span v-if="!isJoined">Join</Span>
         <Span v-else>Joined</Span>
       </FormattedString>
     </Button>
-    <Label col="4" v-on:tap="onDeleteTap(reservation)">
+    <Label col="4" v-on:tap="onDeleteTap()">
       <FormattedString>
         <Span class="far" text.decode="&#xf2ed;"></Span>
       </FormattedString>
@@ -23,6 +23,8 @@
 </template>
 
 <script>
+import * as platformModule from "tns-core-modules/platform";
+
 import api from "@/api/reservations";
 
 export default {
@@ -33,24 +35,40 @@ export default {
   data() {
     return {};
   },
+  computed: {
+    isJoined() {
+      let uuid = platformModule.device.uuid;
+      let index = this.reservation.players.indexOf(uuid);
+      return index !== -1;
+    }
+  },
   methods: {
-    onJoinTap(reservation) {
-      // FIXME: reservation.addPlayer();
-      reservation.players += 1;
+    onJoinTap() {
+      this.addPlayer();
 
-      api.updateReservation(reservation).then(() => {
+      api.updateReservation(this.reservation).then(() => {
         // TODO: improve this local state management with Vuex
         // this.$emit('change');
       });
-      // FIXME: isJoined needs to be a player specific thing??
-      reservation.isJoined = true;
     },
-    onDeleteTap(reservation) {
+    onDeleteTap() {
       this.isLoading = true;
-      api.deleteReservation(reservation).then(() => {
+      api.deleteReservation(this.reservation).then(() => {
         // TODO: improve this local state management with Vuex
         this.$emit('change');
       });
+    },
+    addPlayer() {
+      let uuid = platformModule.device.uuid;
+      let index = this.reservation.players.indexOf(uuid);
+
+      console.log("addPlayer() UUID:" + uuid + '| index:' + index);
+      if (index === -1) {
+        console.log('Player JOINS');
+        this.reservation.players.unshift(uuid);
+      } else {
+        console.log('Player already JOINED');
+      }
     }
   },
 };

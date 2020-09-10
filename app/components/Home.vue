@@ -14,10 +14,7 @@
 
       <ListView v-else row="0" for="reservation in reservations">
         <v-template>
-          <reservation-item
-            :reservation="reservation"
-            v-on:change="onReservationChange()"
-          />
+          <ReservationItem :reservation="reservation" v-on:change="onReservationChange()" />
         </v-template>
       </ListView>
 
@@ -239,13 +236,18 @@ export default {
       this.showList = true;
     },
     submitReservation() {
-      let reservation = Reservation.newReservation(
-        this.startDate,
-        this.startTime,
-        this.endTime
-      );
-
       this.isLoading = true;
+      
+      let startDateTime = new Date(this.startDate);
+      startDateTime.setHours(this.startTime.getHours());
+      startDateTime.setMinutes(this.startTime.getMinutes());
+
+      let endDateTime = new Date(this.startDate);
+      endDateTime.setHours(this.endTime.getHours());
+      endDateTime.setMinutes(this.endTime.getMinutes());
+
+      let reservation = new Reservation(startDateTime, endDateTime);
+
       api.createReservation(reservation).then(() => {
         // TODO: improve this local state management with Vuex
         this.refreshReservations();
