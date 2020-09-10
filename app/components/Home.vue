@@ -5,36 +5,19 @@
     </ActionBar>
 
     <GridLayout v-if="showList" rows="*, auto">
-      <Label v-if="!hasReservations && !this.isLoading" row="0" class="info">
+      <Label v-if="!hasReservations && !isLoading" row="0" class="info">
         <FormattedString>
           <Span class="fas" text.decode="&#xf45f;" />
           <Span text=" Nog geen VrijSpelen bekend" />
         </FormattedString>
       </Label>
 
-      <ListView v-else for="reservation in reservations" row="0">
+      <ListView v-else row="0" for="reservation in reservations">
         <v-template>
-          <GridLayout columns="auto,auto,auto,*,auto">
-            <Label col="0">{{reservation.startDate}}</Label>
-            <Label col="1">{{reservation.startTime}} - {{reservation.endTime}}</Label>
-            <Label col="2">{{reservation.players}} player(s)</Label>
-            <Button
-              col="3"
-              :isEnabled="!reservation.isJoined"
-              class="-primary"
-              v-on:tap="onJoinTap(reservation)"
-            >
-              <FormattedString>
-                <Span v-if="!reservation.isJoined">Join</Span>
-                <Span v-else>Joined</Span>
-              </FormattedString>
-            </Button>
-            <Label col="4" v-on:tap="onDeleteTap(reservation)">
-              <FormattedString>
-                <Span class="far" text.decode="&#xf2ed;"></Span>
-              </FormattedString>
-            </Label>
-          </GridLayout>
+          <reservation-item
+            :reservation="reservation"
+            v-on:change="onReservationChange()"
+          />
         </v-template>
       </ListView>
 
@@ -51,12 +34,8 @@
     </GridLayout>
 
     <GridLayout v-else rows="auto,auto,auto,auto,auto,*,auto">
-      <TextField
-        row="0"
-        :text="dateFromDateTime(startDate)"
-        editable="false"
-        v-on:tap="onStartDateTap()"
-      ></TextField>
+      <!-- :text="Reservation.dateFromDateTime(startDate)" -->
+      <TextField row="0" :text="startDate" editable="false" v-on:tap="onStartDateTap()"></TextField>
       <DatePicker
         row="1"
         v-show="showStartDateInput"
@@ -64,24 +43,16 @@
         :minDate="minDate"
         :maxDate="maxDate"
       />
-      <TextField
-        row="2"
-        :text="timeFromDateTime(startTime)"
-        editable="false"
-        v-on:tap="onStartTimeTap()"
-      ></TextField>
+      <!-- :text="timeFromDateTime(startTime)" -->
+      <TextField row="2" :text="startTime" editable="false" v-on:tap="onStartTimeTap()"></TextField>
       <TimePicker
         row="3"
         v-show="showStartTimeInput"
         v-model="startTime"
         :minuteInterval="minuteInterval"
       />
-      <TextField
-        row="4"
-        :text="timeFromDateTime(endTime)"
-        editable="false"
-        v-on:tap="onEndTimeTap()"
-      ></TextField>
+      <!-- :text="timeFromDateTime(endTime)" -->
+      <TextField row="4" :text="endTime" editable="false" v-on:tap="onEndTimeTap()"></TextField>
       <TimePicker
         row="5"
         v-show="showEndTimeInput"
@@ -109,7 +80,10 @@
 <script>
 // ERROR ON TIMEPICKER :minHour="minHour" :maxHour="maxHour" :minMinutes="minMinutes" :maxMinutes="maxMinutes"
 import api from "@/api/reservations";
+
 import Reservation from "@/models/Reservation";
+
+import ReservationItem from "./ReservationItem";
 
 export default {
   data() {
@@ -130,6 +104,9 @@ export default {
       showStartTimeInput: false,
       showEndTimeInput: false,
     };
+  },
+  components: {
+    ReservationItem,
   },
   mounted() {
     // TODO: improve this local state management with Vuex
@@ -217,7 +194,7 @@ export default {
     // LIST
     refreshReservations() {
       // TODO: improve this local state management with Vuex
-      api.getReservations().then(reservations => {
+      api.getReservations().then((reservations) => {
         this.reservations = [...reservations];
         this.reservations.sort(
           (a, b) => a.startDateTime.getTime() - b.startDateTime.getTime()
@@ -225,22 +202,8 @@ export default {
         this.isLoading = false;
       });
     },
-    onJoinTap(reservation) {
-      reservation.addPlayer();
-
-      api.updateReservation(reservation).then(() => {
-        // TODO: improve this local state management with Vuex
-        this.refreshReservations();
-      });
-      // FIXME: isJoined needs to be a player specific thing??
-      reservation.isJoined = true;
-    },
-    onDeleteTap(reservation) {
-      this.isLoading = true;
-      api.deleteReservation(reservation).then(() => {
-        // TODO: improve this local state management with Vuex
-        this.refreshReservations();
-      });
+    onReservationChange() {
+      this.refreshReservations();
     },
     onAddFormTap() {
       this.resetForm();
