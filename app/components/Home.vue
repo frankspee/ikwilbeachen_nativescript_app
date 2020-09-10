@@ -31,8 +31,12 @@
     </GridLayout>
 
     <GridLayout v-else rows="auto,auto,auto,auto,auto,*,auto">
-      <!-- :text="Reservation.dateFromDateTime(startDate)" -->
-      <TextField row="0" :text="startDate" editable="false" v-on:tap="onStartDateTap()"></TextField>
+      <TextField
+        row="0"
+        :text="dateFromDateTime(startDate)"
+        editable="false"
+        v-on:tap="onStartDateTap()"
+      ></TextField>
       <DatePicker
         row="1"
         v-show="showStartDateInput"
@@ -40,16 +44,24 @@
         :minDate="minDate"
         :maxDate="maxDate"
       />
-      <!-- :text="timeFromDateTime(startTime)" -->
-      <TextField row="2" :text="startTime" editable="false" v-on:tap="onStartTimeTap()"></TextField>
+      <TextField
+        row="2"
+        :text="timeFromDateTime(startTime)"
+        editable="false"
+        v-on:tap="onStartTimeTap()"
+      ></TextField>
       <TimePicker
         row="3"
         v-show="showStartTimeInput"
         v-model="startTime"
         :minuteInterval="minuteInterval"
       />
-      <!-- :text="timeFromDateTime(endTime)" -->
-      <TextField row="4" :text="endTime" editable="false" v-on:tap="onEndTimeTap()"></TextField>
+      <TextField
+        row="4"
+        :text="timeFromDateTime(endTime)"
+        editable="false"
+        v-on:tap="onEndTimeTap()"
+      ></TextField>
       <TimePicker
         row="5"
         v-show="showEndTimeInput"
@@ -77,6 +89,8 @@
 <script>
 // ERROR ON TIMEPICKER :minHour="minHour" :maxHour="maxHour" :minMinutes="minMinutes" :maxMinutes="maxMinutes"
 import api from "@/api/reservations";
+
+import DateTimeHelper from "@/helpers/DateTimeHelper";
 
 import Reservation from "@/models/Reservation";
 
@@ -187,7 +201,7 @@ export default {
     },
   },
   methods: {
-    ...Reservation, // FIXME: the method UTILS are not correctly loaded for the form anymore!!
+    ...DateTimeHelper,
     // LIST
     refreshReservations() {
       // TODO: improve this local state management with Vuex
@@ -237,7 +251,7 @@ export default {
     },
     submitReservation() {
       this.isLoading = true;
-      
+
       let startDateTime = new Date(this.startDate);
       startDateTime.setHours(this.startTime.getHours());
       startDateTime.setMinutes(this.startTime.getMinutes());
