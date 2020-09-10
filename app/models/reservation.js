@@ -1,5 +1,3 @@
-import DateTimeHelper from '@/helpers/DateTimeHelper';
-
 export default class Reservation {
     constructor(startDateTime, endDateTime, id, players = []) {
         console.log(startDateTime, endDateTime, id, players);
@@ -7,9 +5,6 @@ export default class Reservation {
         this.id = id;
         this.startDateTime = startDateTime;
         this.endDateTime = endDateTime;
-        this.startDate = DateTimeHelper.dateFromDateTime(startDateTime);
-        this.startTime = DateTimeHelper.timeFromDateTime(startDateTime);
-        this.endTime = DateTimeHelper.timeFromDateTime(endDateTime);
         this.players = players;
     }
 }
