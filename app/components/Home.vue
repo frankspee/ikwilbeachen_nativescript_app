@@ -14,7 +14,7 @@
 
       <ListView v-else row="0" for="reservation in reservations">
         <v-template>
-          <ReservationItem :reservation="reservation" v-on:change="onReservationChange()" />
+          <ReservationItem v-bind="reservation" v-on:change="onReservationChange()" />
         </v-template>
       </ListView>
 

@@ -8,3 +8,14 @@ export default class Reservation {
         this.players = players;
     }
 }
+
+// export default {
+//     data() {
+//         return {
+//             id: this.id,
+//             startDateTime: this.startDateTime,
+//             endDateTime: this.endDateTime,
+//             players: this.players
+//         }
+//     }
+// }

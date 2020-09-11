@@ -27,27 +27,31 @@ import DateTimeHelper from "@/helpers/DateTimeHelper";
 export default {
   name: "ReservationItem",
   props: {
-    reservation: Object,
+    id: Number,
+    startDateTime: Date,
+    endDateTime: Date,
+    players: Array,
   },
   data() {
-    return {};
+    return {
+      playerId: platformModule.device.uuid,
+    };
   },
   computed: {
     startDate() {
-      return this.dateFromDateTime(this.reservation.startDateTime);
+      return this.dateFromDateTime(this.startDateTime);
     },
     startTime() {
-      return this.timeFromDateTime(this.reservation.startDateTime);
+      return this.timeFromDateTime(this.startDateTime);
     },
     endTime() {
-      return this.timeFromDateTime(this.reservation.endDateTime);
+      return this.timeFromDateTime(this.endDateTime);
     },
     playersCount() {
-      return this.reservation.players.length;
+      return this.players.length;
     },
     joined() {
-      let uuid = platformModule.device.uuid;
-      let index = this.reservation.players.indexOf(uuid);
+      let index = this.players.indexOf(this.playerId);
       return index !== -1;
     },
   },
@@ -56,26 +60,35 @@ export default {
     onJoinTap() {
       this.addPlayer();
 
-      api.updateReservation(this.reservation).then(() => {
-        // TODO: improve this local state management with Vuex
-        // this.$emit('change');
-      });
+      api
+        .updateReservation({
+          id: this.id,
+          startDateTime: this.startDateTime,
+          endDateTime: this.endDateTime,
+          players: this.players,
+        })
+        .then(() => {
+          // TODO: improve this local state management with Vuex
+          // this.$emit('change');
+        });
     },
     onDeleteTap() {
       this.isLoading = true;
-      api.deleteReservation(this.reservation).then(() => {
+      api.deleteReservation(this.id).then(() => {
         // TODO: improve this local state management with Vuex
         this.$emit("change");
       });
     },
     addPlayer() {
-      let uuid = platformModule.device.uuid;
-      let index = this.reservation.players.indexOf(uuid);
+      let index = this.players.indexOf(this.playerId);
 
-      console.log("addPlayer() UUID:" + uuid + "| index:" + index);
+      console.log("addPlayer() UUID:" + this.playerId + "| index:" + index);
       if (index === -1) {
         console.log("Player JOINS");
-        this.reservation.players.unshift(uuid);
+        
+        // FIXME: LOCAL CHANGE OF PROPS IS NOT ALLOWED WHEN PASSED BY THE PARENT, should go through store or api?
+        this.players.unshift(this.playerId);
+
       } else {
         console.log("Player already JOINED");
       }

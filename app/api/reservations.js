@@ -60,9 +60,9 @@ export default {
         throw message;
       })
   },
-  deleteReservation(reservation) {
+  deleteReservation(id) {
     return http.request({
-      url: _baseUrl + reservation.id,
+      url: _baseUrl + id,
       method: 'DELETE',
     })
       .then(this.validateCode)
@@ -70,7 +70,7 @@ export default {
         resolve(response);
       }))
       .catch(e => {
-        let message = 'Could not delete the reservation with id: ' + reservation.id + '. Error: ' + e;
+        let message = 'Could not delete the reservation with id: ' + id + '. Error: ' + e;
         console.error(message);
         throw message;
       })
