@@ -5,22 +5,22 @@
     </ActionBar>
 
     <GridLayout v-if="showList" rows="*, auto">
-      <Label v-if="!hasReservations && !isLoading" row="0" class="info">
+      <Label v-if="!hasActivities && !isLoading" row="0" class="info">
         <FormattedString>
           <Span class="fas" text.decode="&#xf45f;" />
           <Span text=" Nog geen VrijSpelen bekend" />
         </FormattedString>
       </Label>
 
-      <ListView v-else row="0" for="reservation in reservations">
+      <ListView v-else row="0" for="activity in activities">
         <v-template>
-          <ReservationItem v-bind="reservation" v-on:change="onReservationChange()" />
+          <ActivityItem :activity="activity" v-on:change="onItemChange()" />
         </v-template>
       </ListView>
 
       <Button
         row="1"
-        :class="[{'-primary' : !hasReservations},{'-outline' : hasReservations}]"
+        :class="[{'-primary' : !hasActivities},{'-outline' : hasActivities}]"
         v-on:tap="onAddFormTap()"
       >
         <FormattedString>
@@ -88,18 +88,19 @@
 
 <script>
 // ERROR ON TIMEPICKER :minHour="minHour" :maxHour="maxHour" :minMinutes="minMinutes" :maxMinutes="maxMinutes"
-import api from "@/api/reservations";
+
+import { mapState, mapActions } from "vuex";
 
 import DateTimeHelper from "@/helpers/DateTimeHelper";
 
 import Reservation from "@/models/Reservation";
 
-import ReservationItem from "./ReservationItem";
+import ActivityItem from "./ActivityItem";
 
 export default {
   data() {
     return {
-      isLoading: true,
+      isLoading: false, // FIXME: isLoading should work
       showList: true,
       minDate: new Date(),
       minHour: 8,
@@ -110,25 +111,25 @@ export default {
       startDate: new Date(),
       startTime: null,
       endTime: null,
-      reservations: [],
       showStartDateInput: false,
       showStartTimeInput: false,
       showEndTimeInput: false,
     };
   },
   components: {
-    ReservationItem,
+    ActivityItem,
   },
   mounted() {
-    // TODO: improve this local state management with Vuex
-    this.refreshReservations();
-    // FIXME: this is a debug reservation for easy testing
-    this.submitReservation();
+    this.getActivities();
+
+    // FIXME: this is a debug activity for easy testing
+    this.submitActivity();
   },
   computed: {
+    ...mapState(["activities"]),
     // LIST
-    hasReservations() {
-      return this.reservations.length > 0;
+    hasActivities() {
+      return this.activities.length > 0;
     },
     // FORM
     maxDate() {
@@ -201,20 +202,11 @@ export default {
     },
   },
   methods: {
+    ...mapActions(["getActivities", "createActivity"]),
     ...DateTimeHelper,
     // LIST
-    refreshReservations() {
-      // TODO: improve this local state management with Vuex
-      api.getReservations().then((reservations) => {
-        this.reservations = [...reservations];
-        this.reservations.sort(
-          (a, b) => a.startDateTime.getTime() - b.startDateTime.getTime()
-        );
-        this.isLoading = false;
-      });
-    },
-    onReservationChange() {
-      this.refreshReservations();
+    onItemChange() {
+      // no item change calls anymore
     },
     onAddFormTap() {
       this.resetForm();
@@ -246,11 +238,11 @@ export default {
       this.showList = true;
     },
     onSubmitFormTap() {
-      this.submitReservation();
+      this.submitActivity();
       this.showList = true;
     },
-    submitReservation() {
-      this.isLoading = true;
+    submitActivity() {
+      // FIXME: this.isLoading = true;
 
       let startDateTime = new Date(this.startDate);
       startDateTime.setHours(this.startTime.getHours());
@@ -260,11 +252,10 @@ export default {
       endDateTime.setHours(this.endTime.getHours());
       endDateTime.setMinutes(this.endTime.getMinutes());
 
-      let reservation = new Reservation(startDateTime, endDateTime);
+      let activity = new Reservation(startDateTime, endDateTime);
 
-      api.createReservation(reservation).then(() => {
-        // TODO: improve this local state management with Vuex
-        this.refreshReservations();
+      this.$store.dispatch("createActivity", activity).catch(() => {
+        alert("An error occurred creating an activity.");
       });
     },
   },

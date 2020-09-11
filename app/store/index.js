@@ -1,19 +1,46 @@
 import Vue from 'nativescript-vue';
 import Vuex from 'vuex';
 
+import * as actions from '@/store/actions'
+import * as types from '@/store/mutation-types';
+
 Vue.use(Vuex);
 
 const debug = process.env.NODE_ENV !== 'production';
 
 const store = new Vuex.Store({
-    state: {
-      count: 0
+  state: {
+    activities: []
+  },
+  mutations: {
+    [types.SET_ACTIVITIES](state, activities) {
+      console.log(types.SET_ACTIVITIES, activities);
+      state.activities = activities;
     },
-    mutations: {
-      increment: state => state.count++,
-      decrement: state => state.count--
+    [types.ADD_ACTIVITY](state, activity) {
+      console.log(types.ADD_ACTIVITY, activity);
+      state.activities.push(activity);
     },
-    strict: debug
+    [types.UPDATE_ACTIVITY](state, activity) {
+      console.log(types.UPDATE_ACTIVITY, activity);
+      let activityToUpdate = state.activities.find(i => i.id == activity.id);
+      Object.assign(activityToUpdate, activity);
+    },
+    [types.DELETE_ACTIVITY](state, id) {
+      console.log(types.DELETE_ACTIVITY, id);
+      state.activities.splice(state.activities.findIndex(i => i.id == id), 1);
+    },
+  },
+  actions,
+  getters: {
+    // FIXME: make sure this works, and get the sorted activities in Home.vue
+    activitiesSorted: state => {
+      return state.activities.sort(
+        (a, b) => a.startDateTime.getTime() - b.startDateTime.getTime()
+      );
+    }
+  },
+  strict: debug
 })
 
 Vue.prototype.$store = store;

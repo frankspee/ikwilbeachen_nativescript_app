@@ -1,11 +1,11 @@
 export default class Reservation {
-    constructor(startDateTime, endDateTime, id, players = []) {
-        console.log(startDateTime, endDateTime, id, players);
+    constructor(startDateTime, endDateTime, id, attendees = []) {
+        console.log(startDateTime, endDateTime, id, attendees);
 
         this.id = id;
         this.startDateTime = startDateTime;
         this.endDateTime = endDateTime;
-        this.players = players;
+        this.attendees = attendees;
     }
 }
 
@@ -15,7 +15,7 @@ export default class Reservation {
 //             id: this.id,
 //             startDateTime: this.startDateTime,
 //             endDateTime: this.endDateTime,
-//             players: this.players
+//             attendees: this.attendees
 //         }
 //     }
 // }
