@@ -32,3 +32,6 @@ typings/
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+
+# NOT SURE IF THIS IS CORRECT
+*.dev.js

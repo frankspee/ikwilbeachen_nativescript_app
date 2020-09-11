@@ -5,43 +5,23 @@
     </ActionBar>
 
     <GridLayout v-if="showList" rows="*, auto">
-      <Label v-if="!hasReservations" row="0" class="info">
+      <Label v-if="!hasReservations && !isLoading" row="0" class="info">
         <FormattedString>
           <Span class="fas" text.decode="&#xf45f;" />
           <Span text=" Nog geen VrijSpelen bekend" />
         </FormattedString>
       </Label>
 
-      <ListView v-else for="reservation in reservations" row="0">
+      <ListView v-else row="0" for="reservation in reservations">
         <v-template>
-          <GridLayout columns="auto,auto,auto,*,auto">
-            <Label col="0">{{reservation.startDate}}</Label>
-            <Label col="1">{{reservation.startTime}} - {{reservation.endTime}}</Label>
-            <Label col="2">{{reservation.players}} player(s)</Label>
-            <Button
-              col="3"
-              :isEnabled="!reservation.isJoined"
-              class="-primary"
-              v-on:tap="onJoinTap(reservation)"
-            >
-              <FormattedString>
-                <Span v-if="!reservation.isJoined">Join</Span>
-                <Span v-else>Joined</Span>
-              </FormattedString>
-            </Button>
-            <Label col="4" v-on:tap="onDeleteTap(reservation)">
-              <FormattedString>
-                <Span class="far" text.decode="&#xf2ed;"></Span>
-              </FormattedString>
-            </Label>
-          </GridLayout>
+          <ReservationItem v-bind="reservation" v-on:change="onReservationChange()" />
         </v-template>
       </ListView>
 
       <Button
         row="1"
         :class="[{'-primary' : !hasReservations},{'-outline' : hasReservations}]"
-        v-on:tap="showCreateForm()"
+        v-on:tap="onAddFormTap()"
       >
         <FormattedString>
           <Span class="far" text.decode="&#xf271;"></Span>
@@ -90,7 +70,12 @@
       />
       <StackLayout row="6" orientation="horizontal">
         <Button width="33%" class="-outline" v-on:tap="onCancelTap()" text="Annuleren" />
-        <Button width="50%" horizontalAlignment="right" class="-primary" v-on:tap="onNewTap()">
+        <Button
+          width="50%"
+          horizontalAlignment="right"
+          class="-primary"
+          v-on:tap="onSubmitFormTap()"
+        >
           <FormattedString>
             <Span class="far" text.decode="&#xf274;"></Span>
             <Span text=" VrijSpelen opslaan"></Span>
@@ -103,10 +88,18 @@
 
 <script>
 // ERROR ON TIMEPICKER :minHour="minHour" :maxHour="maxHour" :minMinutes="minMinutes" :maxMinutes="maxMinutes"
+import api from "@/api/reservations";
+
+import DateTimeHelper from "@/helpers/DateTimeHelper";
+
+import Reservation from "@/models/Reservation";
+
+import ReservationItem from "./ReservationItem";
 
 export default {
   data() {
     return {
+      isLoading: true,
       showList: true,
       minDate: new Date(),
       minHour: 8,
@@ -123,13 +116,21 @@ export default {
       showEndTimeInput: false,
     };
   },
+  components: {
+    ReservationItem,
+  },
   mounted() {
-    this.addReservation();
+    // TODO: improve this local state management with Vuex
+    this.refreshReservations();
+    // FIXME: this is a debug reservation for easy testing
+    this.submitReservation();
   },
   computed: {
+    // LIST
     hasReservations() {
       return this.reservations.length > 0;
     },
+    // FORM
     maxDate() {
       let maxDate = new Date();
       maxDate.setDate(maxDate.getDate() + 10);
@@ -137,6 +138,7 @@ export default {
     },
   },
   watch: {
+    // FORM
     startDate: {
       handler: function (val, oldVal) {
         let minutes = this.startDate.getMinutes();
@@ -199,34 +201,31 @@ export default {
     },
   },
   methods: {
-    sortReservations() {
-      this.reservations.sort(
-        (a, b) => a.startDateTime.getTime() - b.startDateTime.getTime()
-      );
+    ...DateTimeHelper,
+    // LIST
+    refreshReservations() {
+      // TODO: improve this local state management with Vuex
+      api.getReservations().then((reservations) => {
+        this.reservations = [...reservations];
+        this.reservations.sort(
+          (a, b) => a.startDateTime.getTime() - b.startDateTime.getTime()
+        );
+        this.isLoading = false;
+      });
     },
+    onReservationChange() {
+      this.refreshReservations();
+    },
+    onAddFormTap() {
+      this.resetForm();
+      this.showList = false;
+    },
+    // FORM
     resetForm() {
       this.startDate = new Date();
       this.showStartDateInput = true;
       this.showStartTimeInput = false;
       this.showEndTimeInput = false;
-    },
-    dateFromDateTime(dateTime) {
-      let dd = String(dateTime.getDate()).padStart(2, "0");
-      let mm = String(dateTime.getMonth() + 1).padStart(2, "0"); //January is 0!
-      let yyyy = dateTime.getFullYear();
-      let dateString = dd + "-" + mm + "-" + yyyy;
-      return dateString;
-    },
-    timeFromDateTime(dateTime) {
-      let hour = dateTime.getHours();
-      let minutes = dateTime.getMinutes();
-      if (minutes < 10) minutes = "0" + minutes;
-      let time = hour + ":" + minutes;
-      return time;
-    },
-    showCreateForm() {
-      this.resetForm();
-      this.showList = false;
     },
     onStartDateTap() {
       this.showStartDateInput = !this.showStartDateInput;
@@ -246,40 +245,27 @@ export default {
     onCancelTap() {
       this.showList = true;
     },
-    onNewTap() {
-      this.addReservation();
-      this.sortReservations();
+    onSubmitFormTap() {
+      this.submitReservation();
       this.showList = true;
     },
-    addReservation() {
+    submitReservation() {
+      this.isLoading = true;
+
       let startDateTime = new Date(this.startDate);
       startDateTime.setHours(this.startTime.getHours());
       startDateTime.setMinutes(this.startTime.getMinutes());
-      // console.log(startDateTime);
 
       let endDateTime = new Date(this.startDate);
       endDateTime.setHours(this.endTime.getHours());
       endDateTime.setMinutes(this.endTime.getMinutes());
-      // console.log(endDateTime);
 
-      let reservation = {
-        startDateTime: startDateTime,
-        endDateTime: endDateTime,
-        startDate: this.dateFromDateTime(this.startDate),
-        startTime: this.timeFromDateTime(this.startTime),
-        endTime: this.timeFromDateTime(this.endTime),
-        players: Math.round(Math.random(0, 10) * 10),
-        isJoined: false,
-      };
-      this.reservations.unshift(reservation);
-    },
-    onJoinTap(reservation) {
-      reservation.isJoined = true;
-      reservation.players += 1;
-    },
-    onDeleteTap(reservation) {
-      let index = this.reservations.indexOf(reservation);
-      this.reservations.splice(index, 1);
+      let reservation = new Reservation(startDateTime, endDateTime);
+
+      api.createReservation(reservation).then(() => {
+        // TODO: improve this local state management with Vuex
+        this.refreshReservations();
+      });
     },
   },
 };
