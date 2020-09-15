@@ -91,7 +91,7 @@
 <script>
 // ERROR ON TIMEPICKER :minHour="minHour" :maxHour="maxHour" :minMinutes="minMinutes" :maxMinutes="maxMinutes"
 
-import { mapState, mapActions } from "vuex";
+import { mapState, mapGetters, mapActions } from "vuex";
 
 import DateTimeHelper from "@/helpers/DateTimeHelper";
 
@@ -127,8 +127,9 @@ export default {
     this.submitActivity();
   },
   computed: {
-    ...mapState(["loading", "activities"]),
     // LIST
+    ...mapState(["loading"]),
+    ...mapGetters({activities: 'activitiesSorted'}),
     hasActivities() {
       return this.activities.length > 0;
     },

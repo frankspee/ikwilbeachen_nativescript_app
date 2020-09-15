@@ -38,9 +38,8 @@ const store = new Vuex.Store({
   },
   actions,
   getters: {
-    // FIXME: make sure this works, and get the sorted activities in Home.vue
     activitiesSorted: state => {
-      return state.activities.sort(
+      return [...state.activities].sort(
         (a, b) => a.startDateTime.getTime() - b.startDateTime.getTime()
       );
     }
