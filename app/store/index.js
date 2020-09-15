@@ -10,9 +10,14 @@ const debug = process.env.NODE_ENV !== 'production';
 
 const store = new Vuex.Store({
   state: {
+    loading: false,
     activities: []
   },
   mutations: {
+    [types.TOGGLE_LOADING](state, loading) {
+      console.log(types.TOGGLE_LOADING, loading);
+      state.loading = loading;
+    },
     [types.SET_ACTIVITIES](state, activities) {
       console.log(types.SET_ACTIVITIES, activities);
       state.activities = activities;

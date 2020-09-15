@@ -4,8 +4,10 @@
       <Label text="ikwilbeachen" />
     </ActionBar>
 
-    <GridLayout v-if="showList" rows="*, auto">
-      <Label v-if="!hasActivities && !isLoading" row="0" class="info">
+    <GridLayout v-if="showList" rows="*,auto">
+      <ActivityIndicator v-if="loading" :busy="loading" />
+
+      <Label v-if="!hasActivities && !loading" row="0" class="info">
         <FormattedString>
           <Span class="fas" text.decode="&#xf45f;" />
           <Span text=" Nog geen VrijSpelen bekend" />
@@ -100,7 +102,6 @@ import ActivityItem from "./ActivityItem";
 export default {
   data() {
     return {
-      isLoading: false, // FIXME: isLoading should work
       showList: true,
       minDate: new Date(),
       minHour: 8,
@@ -126,7 +127,7 @@ export default {
     this.submitActivity();
   },
   computed: {
-    ...mapState(["activities"]),
+    ...mapState(["loading", "activities"]),
     // LIST
     hasActivities() {
       return this.activities.length > 0;
@@ -242,8 +243,6 @@ export default {
       this.showList = true;
     },
     submitActivity() {
-      // FIXME: this.isLoading = true;
-
       let startDateTime = new Date(this.startDate);
       startDateTime.setHours(this.startTime.getHours());
       startDateTime.setMinutes(this.startTime.getMinutes());

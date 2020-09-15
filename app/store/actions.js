@@ -10,6 +10,7 @@ const _baseUrl = "http://10.0.2.2:3000/reservations/";
 
 export const getActivities = ({ commit }) => {
   console.log('action getActivities');
+  commit(types.TOGGLE_LOADING, true);
 
   return http.request({
     url: _baseUrl,
@@ -30,12 +31,14 @@ export const getActivities = ({ commit }) => {
       });
 
       commit(types.SET_ACTIVITIES, activities);
+      commit(types.TOGGLE_LOADING, false);
       resolve();
     })
 };
 
 export const createActivity = ({ commit }, activity) => {
   console.log('action createActivity');
+  commit(types.TOGGLE_LOADING, true);
 
   return http.request({
     url: _baseUrl,
@@ -53,12 +56,14 @@ export const createActivity = ({ commit }, activity) => {
         data.attendees
       );
       commit(types.ADD_ACTIVITY, reservation);
+      commit(types.TOGGLE_LOADING, false);
       //TODO: resolve(reservation) not needed?!
     })
 };
 
 export const updateActivity = ({ commit }, activity) => {
   console.log('action updateActivity');
+  commit(types.TOGGLE_LOADING, true);
 
   return http.request({
     url: _baseUrl + activity.id,
@@ -69,6 +74,7 @@ export const updateActivity = ({ commit }, activity) => {
     .then(validateCode)
     .then(() => {
       commit(types.UPDATE_ACTIVITY, activity);
+      commit(types.TOGGLE_LOADING, false);
       //TODO: resolve(activity) not needed?!
     })
 };
@@ -93,6 +99,9 @@ export const addAttendee = ({ commit }, activity) => {
 }
 
 export const deleteActivity = ({ commit }, id) => {
+  console.log('action deleteActivity');
+  commit(types.TOGGLE_LOADING, true);
+
   return http.request({
     url: _baseUrl + id,
     method: 'DELETE',
@@ -101,12 +110,14 @@ export const deleteActivity = ({ commit }, id) => {
     .then(new Promise((resolve, reject) => {
       
       commit(types.DELETE_ACTIVITY, id);
+      commit(types.TOGGLE_LOADING, false);
       resolve(response);
 
     }))
     .catch(e => {
       let message = 'Could not delete the activity with id: ' + id + '. Error: ' + e;
       console.error(message);
+      commit(types.TOGGLE_LOADING, false);
       throw message;
     })
 };
