@@ -254,7 +254,8 @@ export default {
       let activity = new Activity({
         startDateTime: startDateTime,
         endDateTime: endDateTime,
-        creatorId: platformModule.device.uuid
+        creatorId: platformModule.device.uuid,
+        // creatorId: "ef3ceb7ffedc5c55"
       });
 
       this.$store.dispatch("createActivity", activity).catch(() => {

@@ -9,7 +9,7 @@
         <Span v-else>Joined</Span>
       </FormattedString>
     </Button>
-    <Label col="4" v-on:tap="onDeleteTap()">
+    <Label col="4" v-show="canDelete" v-on:tap="onDeleteTap()">
       <FormattedString>
         <Span class="far" text.decode="&#xf2ed;"></Span>
       </FormattedString>
@@ -51,6 +51,9 @@ export default {
       let index = this.activity.attendees.indexOf(platformModule.device.uuid);
       return index !== -1;
     },
+    canDelete() {
+      return platformModule.device.uuid === this.activity.creatorId;
+    },
   },
   methods: {
     ...DateTimeHelper,
@@ -61,11 +64,29 @@ export default {
       });
     },
     onDeleteTap() {
-      this.$store.dispatch("deleteActivity", this.activity.id).catch(() => {
+      confirm(
+        "Do you really want to delete the activity on " +
+          this.startDate +
+          " " +
+          this.startTime +
+          "-" +
+          this.endTime +
+          "?"
+      ).then((result) => {
+        if (result) this.deleteActivity();
+      });
+    },
+    deleteActivity() {
+      if (!this.canDelete) {
+        alert("You can not delete an activity created by someone else.");
+        return;
+      }
+
+      this.$store.dispatch("deleteActivity", this.activity.id).catch((e) => {
         console.log(e);
         alert("An error occurred deleting an activity.");
       });
-    }
+    },
   },
 };
 </script>

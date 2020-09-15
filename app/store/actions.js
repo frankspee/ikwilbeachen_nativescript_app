@@ -43,7 +43,7 @@ export const createActivity = ({ commit }, activity) => {
       let activity = new Activity(data);
       commit(types.ADD_ACTIVITY, activity);
       commit(types.TOGGLE_LOADING, false);
-      //TODO: resolve(reservation) not needed?!
+      //TODO: resolve(activity) not needed?!
     })
 };
 
@@ -63,6 +63,8 @@ export const updateActivity = ({ commit }, activity) => {
       commit(types.TOGGLE_LOADING, false);
       //TODO: resolve(activity) not needed?!
     })
+
+    // TODO: better handling for 404 (remove activity from store), and 403 (do nothing).
 };
 
 export const addAttendee = ({ commit }, activity) => {
@@ -91,6 +93,7 @@ export const deleteActivity = ({ commit }, id) => {
   return http.request({
     url: _baseUrl + id,
     method: 'DELETE',
+    headers: { 'X-USER-ID': platformModule.device.uuid }
   })
     .then(validateCode)
     .then(new Promise((resolve, reject) => {
@@ -101,6 +104,8 @@ export const deleteActivity = ({ commit }, id) => {
 
     }))
     .catch(e => {
+      // TODO: better handling for 404 (remove activity from store), and 403 (do nothing).
+      
       let message = 'Could not delete the activity with id: ' + id + '. Error: ' + e;
       console.error(message);
       commit(types.TOGGLE_LOADING, false);
@@ -110,6 +115,7 @@ export const deleteActivity = ({ commit }, id) => {
 
 function validateCode(response) {
   return new Promise((resolve, reject) => {
+    // TODO: better handling for 404 (remove activity from store), and 403 (do nothing).
     if ((response.statusCode >= 200 && response.statusCode < 300) || response.statusCode == 404) {
       resolve(response);
     }
