@@ -3,7 +3,7 @@ import * as platformModule from "tns-core-modules/platform";
 
 import * as types from '@/store/mutation-types';
 
-import Reservation from "@/models/Reservation";
+import Activity from "@/models/Activity";
 
 const _baseUrl = "http://10.0.2.2:3000/reservations/";
 // const _baseUrl = "https://ikwilbeachen.azurewebsites.net/reservations/";
@@ -20,16 +20,7 @@ export const getActivities = ({ commit }) => {
     .then(validateCode)
     .then(getJson)
     .then(data => {
-
-      let activities = data.map(activity => {
-        return new Reservation(
-          new Date(activity.startDateTime),
-          new Date(activity.endDateTime),
-          parseInt(activity.id),
-          activity.attendees
-        );
-      });
-
+      let activities = data.map(activity => { return new Activity(activity); });
       commit(types.SET_ACTIVITIES, activities);
       commit(types.TOGGLE_LOADING, false);
       resolve();
@@ -49,13 +40,8 @@ export const createActivity = ({ commit }, activity) => {
     .then(validateCode)
     .then(getJson)
     .then(data => {
-      let reservation = new Reservation(
-        new Date(data.startDateTime),
-        new Date(data.endDateTime),
-        parseInt(data.id),
-        data.attendees
-      );
-      commit(types.ADD_ACTIVITY, reservation);
+      let activity = new Activity(data);
+      commit(types.ADD_ACTIVITY, activity);
       commit(types.TOGGLE_LOADING, false);
       //TODO: resolve(reservation) not needed?!
     })
@@ -86,8 +72,8 @@ export const addAttendee = ({ commit }, activity) => {
   let index = activity.attendees.indexOf(playerId);
   console.log("addPlayer() UUID:" + playerId + "| index:" + index);
   if (index === -1) {
-    
-    console.log("Player JOINS"); 
+
+    console.log("Player JOINS");
     let attendees = [...activity.attendees];
     attendees.push(playerId);
     return updateActivity({ commit }, {...activity, attendees: attendees});
@@ -108,7 +94,7 @@ export const deleteActivity = ({ commit }, id) => {
   })
     .then(validateCode)
     .then(new Promise((resolve, reject) => {
-      
+
       commit(types.DELETE_ACTIVITY, id);
       commit(types.TOGGLE_LOADING, false);
       resolve(response);

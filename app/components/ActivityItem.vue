@@ -2,7 +2,7 @@
   <GridLayout columns="auto,auto,auto,*,auto">
     <Label col="0">{{startDate}}</Label>
     <Label col="1">{{startTime}} - {{endTime}}</Label>
-    <Label col="2">{{attendeesCount}} attendee(s)</Label>
+    <Label col="2">{{attendeesCount}} speler(s)</Label>
     <Button col="3" :isEnabled="!joined" class="-primary" v-on:tap="onJoinTap()">
       <FormattedString>
         <Span v-if="!joined">Join</Span>
@@ -22,10 +22,12 @@ import * as platformModule from "tns-core-modules/platform";
 
 import DateTimeHelper from "@/helpers/DateTimeHelper";
 
+import Activity from "@/models/Activity";
+
 export default {
   name: "ActivityItem",
   props: {
-    activity: Object,
+    activity: Activity,
   },
   data() {
     return {
@@ -53,12 +55,14 @@ export default {
   methods: {
     ...DateTimeHelper,
     onJoinTap() {
-      this.$store.dispatch("addAttendee", this.activity).catch(() => {
+      this.$store.dispatch("addAttendee", this.activity).catch((e) => {
+        console.log(e);
         alert("An error occurred joining an activity.");
       });
     },
     onDeleteTap() {
       this.$store.dispatch("deleteActivity", this.activity.id).catch(() => {
+        console.log(e);
         alert("An error occurred deleting an activity.");
       });
     }

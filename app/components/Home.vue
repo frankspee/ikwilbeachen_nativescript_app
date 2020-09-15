@@ -90,14 +90,16 @@
 
 <script>
 // ERROR ON TIMEPICKER :minHour="minHour" :maxHour="maxHour" :minMinutes="minMinutes" :maxMinutes="maxMinutes"
+import * as platformModule from "tns-core-modules/platform";
 
 import { mapState, mapGetters, mapActions } from "vuex";
 
 import DateTimeHelper from "@/helpers/DateTimeHelper";
 
-import Reservation from "@/models/Reservation";
+import Activity from "@/models/Activity";
 
 import ActivityItem from "./ActivityItem";
+import { createActivity } from "~/store/actions";
 
 export default {
   data() {
@@ -122,14 +124,11 @@ export default {
   },
   mounted() {
     this.getActivities();
-
-    // FIXME: this is a debug activity for easy testing
-    this.submitActivity();
   },
   computed: {
     // LIST
     ...mapState(["loading"]),
-    ...mapGetters({activities: 'activitiesSorted'}),
+    ...mapGetters({ activities: "activitiesSorted" }),
     hasActivities() {
       return this.activities.length > 0;
     },
@@ -252,7 +251,11 @@ export default {
       endDateTime.setHours(this.endTime.getHours());
       endDateTime.setMinutes(this.endTime.getMinutes());
 
-      let activity = new Reservation(startDateTime, endDateTime);
+      let activity = new Activity({
+        startDateTime: startDateTime,
+        endDateTime: endDateTime,
+        creatorId: platformModule.device.uuid
+      });
 
       this.$store.dispatch("createActivity", activity).catch(() => {
         alert("An error occurred creating an activity.");
