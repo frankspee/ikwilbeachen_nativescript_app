@@ -65,13 +65,7 @@ export default {
     },
     onDeleteTap() {
       confirm(
-        "Do you really want to delete the activity on " +
-          this.startDate +
-          " " +
-          this.startTime +
-          "-" +
-          this.endTime +
-          "?"
+        `Do you really want to delete the activity on ${this.startDate} ${this.startTime}-${this.endTime}?`
       ).then((result) => {
         if (result) this.deleteActivity();
       });

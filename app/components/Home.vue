@@ -210,8 +210,20 @@ export default {
       // no item change calls anymore
     },
     onAddFormTap() {
-      this.resetForm();
-      this.showList = false;
+      login(
+        "Please enter admin credentials",
+        "Fill in username",
+        "Fill in password"
+      ).then((result) => {
+        console.log(
+          `Dialog result: ${result.result}, user: ${result.userName}, pwd: ${result.password}`
+        );
+
+        if (result.result && result.userName == "chefspecial" && result.password == "amigo") {
+          this.resetForm();
+          this.showList = false;
+        }
+      });
     },
     // FORM
     resetForm() {
