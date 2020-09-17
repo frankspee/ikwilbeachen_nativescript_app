@@ -5,8 +5,8 @@ import * as types from '@/store/mutation-types';
 
 import Activity from "@/models/Activity";
 
-const _baseUrl = "http://10.0.2.2:3000/reservations/";
-// const _baseUrl = "https://ikwilbeachen.azurewebsites.net/reservations/";
+const _baseUrl = "http://10.0.2.2:3000/activities/";
+// const _baseUrl = "https://ikwilbeachen.azurewebsites.net/activities/";
 
 export const getActivities = ({ commit }) => {
   console.log('action getActivities');
