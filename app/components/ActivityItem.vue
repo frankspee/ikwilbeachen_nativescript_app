@@ -76,7 +76,7 @@ export default {
         return;
       }
 
-      this.$store.dispatch("deleteActivity", this.activity.id).catch((e) => {
+      this.$store.dispatch("deleteActivity", this.activity._id).catch((e) => {
         console.log(e);
         alert("An error occurred deleting an activity.");
       });

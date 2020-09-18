@@ -1,8 +1,8 @@
 export default class Activity {
-    constructor({ startDateTime, endDateTime, creatorId, id = null, attendees = [] } = {}) {
-        console.log(startDateTime, endDateTime, creatorId, id, attendees);
+    constructor({ startDateTime, endDateTime, creatorId, _id = null, attendees = [] } = {}) {
+        console.log(startDateTime, endDateTime, creatorId, _id, attendees);
         
-        this.id = parseInt(id);
+        this._id = _id;
         this.startDateTime = (startDateTime instanceof Date) ? startDateTime : new Date(startDateTime);
         this.endDateTime = (endDateTime instanceof Date) ? endDateTime : new Date(endDateTime);
         this.attendees = attendees;

@@ -28,12 +28,12 @@ const store = new Vuex.Store({
     },
     [types.UPDATE_ACTIVITY](state, activity) {
       console.log(types.UPDATE_ACTIVITY, activity);
-      let activityToUpdate = state.activities.find(i => i.id == activity.id);
+      let activityToUpdate = state.activities.find(i => i._id == activity._id);
       Object.assign(activityToUpdate, activity);
     },
-    [types.DELETE_ACTIVITY](state, id) {
-      console.log(types.DELETE_ACTIVITY, id);
-      state.activities.splice(state.activities.findIndex(i => i.id == id), 1);
+    [types.DELETE_ACTIVITY](state, _id) {
+      console.log(types.DELETE_ACTIVITY, _id);
+      state.activities.splice(state.activities.findIndex(i => i._id == _id), 1);
     },
   },
   actions,

@@ -20,7 +20,10 @@ export const getActivities = ({ commit }) => {
     .then(validateCode)
     .then(getJson)
     .then(data => {
-      let activities = data.map(activity => { return new Activity(activity); });
+      let activities = data.map(activity => {
+        console.log(activity);
+        return new Activity(activity);
+      });
       commit(types.SET_ACTIVITIES, activities);
       commit(types.TOGGLE_LOADING, false);
       resolve();
@@ -28,7 +31,7 @@ export const getActivities = ({ commit }) => {
 };
 
 export const createActivity = ({ commit }, activity) => {
-  console.log('action createActivity');
+  console.log('action createActivity:', activity);
   commit(types.TOGGLE_LOADING, true);
 
   return http.request({
@@ -48,11 +51,11 @@ export const createActivity = ({ commit }, activity) => {
 };
 
 export const updateActivity = ({ commit }, activity) => {
-  console.log('action updateActivity');
+  console.log('action updateActivity:', activity);
   commit(types.TOGGLE_LOADING, true);
 
   return http.request({
-    url: _baseUrl + activity.id,
+    url: _baseUrl + activity._id,
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     content: JSON.stringify(activity)
@@ -64,11 +67,11 @@ export const updateActivity = ({ commit }, activity) => {
       //TODO: resolve(activity) not needed?!
     })
 
-    // TODO: better handling for 404 (remove activity from store), and 403 (do nothing).
+  // TODO: better handling for 404 (remove activity from store), and 403 (do nothing).
 };
 
 export const addAttendee = ({ commit }, activity) => {
-  console.log('action addAttendee');
+  console.log('action addAttendee:', activity);
 
   let playerId = platformModule.device.uuid;
   let index = activity.attendees.indexOf(playerId);
@@ -78,7 +81,7 @@ export const addAttendee = ({ commit }, activity) => {
     console.log("Player JOINS");
     let attendees = [...activity.attendees];
     attendees.push(playerId);
-    return updateActivity({ commit }, {...activity, attendees: attendees});
+    return updateActivity({ commit }, { ...activity, attendees: attendees });
 
   } else {
     console.log("Player already JOINED");
@@ -86,27 +89,27 @@ export const addAttendee = ({ commit }, activity) => {
   }
 }
 
-export const deleteActivity = ({ commit }, id) => {
-  console.log('action deleteActivity');
+export const deleteActivity = ({ commit }, _id) => {
+  console.log('action deleteActivity:', _id);
   commit(types.TOGGLE_LOADING, true);
 
   return http.request({
-    url: _baseUrl + id,
+    url: _baseUrl + _id,
     method: 'DELETE',
     headers: { 'X-USER-ID': platformModule.device.uuid }
   })
     .then(validateCode)
     .then(new Promise((resolve, reject) => {
 
-      commit(types.DELETE_ACTIVITY, id);
+      commit(types.DELETE_ACTIVITY, _id);
       commit(types.TOGGLE_LOADING, false);
       resolve(response);
 
     }))
     .catch(e => {
       // TODO: better handling for 404 (remove activity from store), and 403 (do nothing).
-      
-      let message = 'Could not delete the activity with id: ' + id + '. Error: ' + e;
+
+      let message = 'Could not delete the activity with _id: ' + _id + '. Error: ' + e;
       console.error(message);
       commit(types.TOGGLE_LOADING, false);
       throw message;
