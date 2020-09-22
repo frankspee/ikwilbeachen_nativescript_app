@@ -104,6 +104,8 @@ import { createActivity } from "~/store/actions";
 export default {
   data() {
     return {
+      userName: "amigo",
+      password: "chefspecial",
       showList: true,
       minDate: new Date(),
       minHour: 8,
@@ -219,7 +221,7 @@ export default {
           `Dialog result: ${result.result}, user: ${result.userName}, pwd: ${result.password}`
         );
 
-        if (result.result && result.userName == "chefspecial" && result.password == "amigo") {
+        if (result.result && result.userName == this.userName && result.password == this.password) {
           this.resetForm();
           this.showList = false;
         }
